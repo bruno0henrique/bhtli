@@ -5,6 +5,19 @@
     const STORAGE_KEY = 'bhlti_portfolio_data';
     const PASSWORD = '0410';
 
+    // ======= CONFIGURAÇÃO SUPABASE ========
+    // Substitua pela sua URL e ROLE KEY/ANON KEY reais
+    const SUPABASE_URL = 'SUA_URL_SUPABASE'; 
+    const SUPABASE_KEY = 'SUA_CHAVE_ANON_SUPABASE';
+    let supabase = null;
+    try {
+        if (SUPABASE_URL.startsWith('http')) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+    } catch(e) {
+        console.warn('Supabase não inicializado ou URL inválida.');
+    }
+
     const AVAILABLE_ICONS = [
         'ph-squares-four', 'ph-map-trifold', 'ph-storefront', 'ph-briefcase',
         'ph-graduation-cap', 'ph-lightning', 'ph-code', 'ph-database',
@@ -22,92 +35,67 @@
     }
 
     function escapeHtml(str) {
+        if(!str) return '';
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
     }
 
-    // ===== DEFAULT DATA =====
-    function createDefaultData() {
-        return {
-            version: 1,
-            header: {
-                logo: 'bhsti.online',
-                subtitle: 'Sistemas e Aplicações Web'
-            },
-            rows: [
-                {
-                    id: uid(),
-                    layout: 'full',
-                    sections: [{
-                        id: uid(),
-                        type: 'projects',
-                        title: 'Projetos Selecionados',
-                        icon: 'ph-squares-four',
-                        items: [
-                            { id: uid(), title: 'Terradata', desc: 'Sistema de Gestão Territorial', icon: 'ph-map-trifold', link: '/terradata/' },
-                            { id: uid(), title: 'PDV Mercadinho', desc: 'Frente de Caixa e Gestão', icon: 'ph-storefront', link: '/pdv-mercadinho/' }
-                        ]
-                    }]
-                },
-                {
-                    id: uid(),
-                    layout: 'columns',
-                    sections: [
-                        {
-                            id: uid(),
-                            type: 'timeline',
-                            title: 'Experiências',
-                            icon: 'ph-briefcase',
-                            items: [
-                                { id: uid(), badge: 'Atual', badgeType: 'primary', title: 'Desenvolvedor Flutter & Firebase', company: 'Desenvolvimento de sistemas PDV e arquitetura de aplicações web/mobile.', body: ['Especialista na criação de soluções escaláveis utilizando Flutter para o frontend e Firebase para infraestrutura serverless, autenticação e banco de dados em tempo real.'] },
-                                { id: uid(), badge: 'Anterior', badgeType: 'secondary', title: 'Profissional Industrial - Mars Wrigley', company: 'Atuação em linhas de produção de alta performance e projetos Kaizen.', body: ['Otimização de processos produtivos e implementação de melhorias contínuas seguindo a metodologia Lean Manufacturing.'] }
-                            ]
-                        },
-                        {
-                            id: uid(),
-                            type: 'timeline',
-                            title: 'Estudos',
-                            icon: 'ph-graduation-cap',
-                            items: [
-                                { id: uid(), badge: 'Em Andamento', badgeType: 'primary', title: 'Modelagem 3D e Projetos Mecânicos', company: 'Desenvolvimento de peças industriais (como raspadores) utilizando Onshape, CATIA e AutoCAD.', body: ['Criação de modelos tridimensionais complexos e detalhamento de desenhos técnicos para fabricação industrial.'] },
-                                { id: uid(), badge: 'Em Andamento', badgeType: 'primary', title: 'Inglês Técnico', company: 'Foco em vocabulário corporativo, TI e conversação.', body: ['Aprimoramento da comunicação em ambientes profissionais internacionais e compreensão de documentações técnicas.'] }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: uid(),
-                    layout: 'columns',
-                    sections: [
-                        {
-                            id: uid(),
-                            type: 'timeline',
-                            title: 'Formação',
-                            icon: 'ph-graduation-cap',
-                            items: [
-                                { id: uid(), badge: 'Graduação', badgeType: 'primary', title: 'Análise e Desenvolvimento de Sistemas', company: 'Instituição de Ensino Superior', body: ['Foco em engenharia de software, banco de dados, desenvolvimento web e metodologias ágeis.'] }
-                            ]
-                        },
-                        {
-                            id: uid(),
-                            type: 'skills',
-                            title: 'Habilidades',
-                            icon: 'ph-lightning',
-                            groups: [
-                                { id: uid(), title: 'Frontend', tags: ['Flutter', 'HTML5', 'CSS3', 'JavaScript'] },
-                                { id: uid(), title: 'Backend & Ferramentas', tags: ['Firebase', 'Git & GitHub', 'Onshape', 'AutoCAD'] }
-                            ]
-                        }
-                    ]
-                }
-            ],
-            footer: '© 2026 bhsti.online. Todos os direitos reservados.'
-        };
+    // Script para enviar os dados estáticos locais para o Supabase (para não perdê-los)
+    // Para rodar, digite no console: migrarDadosLocaisParaSupabase()
+    window.migrarDadosLocaisParaSupabase = async function() {
+        showToast('Iniciando migração dos dados...', 'ph-cloud-arrow-up');
+        try {
+            // 1. Projetos
+            const projetos = [
+                {titulo: 'Terradata', descricao: 'Sistema de Gestão Territorial', icone: 'ph-map-trifold', link_projeto: '/terradata/'},
+                {titulo: 'PDV Mercadinho', descricao: 'Frente de Caixa e Gestão', icone: 'ph-storefront', link_projeto: '/pdv-mercadinho/'}
+            ];
+            await supabase.from('projetos').insert(projetos);
+
+            // 2. Cronograma
+            const expediencias = [
+                {categoria: 'Experiências', badge: 'Atual', tipo_badge: 'primary', titulo: 'Desenvolvedor Flutter & Firebase', subtitulo_empresa: 'Desenvolvimento de sistemas PDV e arquitetura de aplicações web/mobile.', detalhes: JSON.stringify(['Especialista na criação de soluções escaláveis utilizando Flutter para o frontend e Firebase para infraestrutura serverless, autenticação e banco de dados em tempo real.'])},
+                {categoria: 'Experiências', badge: 'Anterior', tipo_badge: 'secondary', titulo: 'Profissional Industrial - Mars Wrigley', subtitulo_empresa: 'Atuação em linhas de produção de alta performance e projetos Kaizen.', detalhes: JSON.stringify(['Otimização de processos produtivos e implementação de melhorias contínuas seguindo a metodologia Lean Manufacturing.'])},
+                {categoria: 'Estudos', badge: 'Em Andamento', tipo_badge: 'primary', titulo: 'Modelagem 3D e Projetos Mecânicos', subtitulo_empresa: 'Desenvolvimento de peças industriais (como raspadores) utilizando Onshape, CATIA e AutoCAD.', detalhes: JSON.stringify(['Criação de modelos tridimensionais complexos e detalhamento de desenhos técnicos para fabricação industrial.'])},
+                {categoria: 'Estudos', badge: 'Em Andamento', tipo_badge: 'primary', titulo: 'Inglês Técnico', subtitulo_empresa: 'Foco em vocabulário corporativo, TI e conversação.', detalhes: JSON.stringify(['Aprimoramento da comunicação em ambientes profissionais internacionais e compreensão de documentações técnicas.'])},
+                {categoria: 'Formação', badge: 'Graduação', tipo_badge: 'primary', titulo: 'Análise e Desenvolvimento de Sistemas', subtitulo_empresa: 'Instituição de Ensino Superior', detalhes: JSON.stringify(['Foco em engenharia de software, banco de dados, desenvolvimento web e metodologias ágeis.'])}
+            ];
+            await supabase.from('cronograma').insert(expediencias);
+
+            // 3. Habilidades Grupos e Tags
+            const habFrontend = await supabase.from('habilidades_grupos').insert({titulo: 'Frontend'}).select();
+            if(habFrontend.data && habFrontend.data.length > 0) {
+                const gId = habFrontend.data[0].id;
+                await supabase.from('habilidades_tags').insert([
+                    {grupo_id: gId, tag: 'Flutter'},{grupo_id: gId, tag: 'HTML5'},{grupo_id: gId, tag: 'CSS3'},{grupo_id: gId, tag: 'JavaScript'}
+                ]);
+            }
+            
+            const habBackend = await supabase.from('habilidades_grupos').insert({titulo: 'Backend & Ferramentas'}).select();
+            if(habBackend.data && habBackend.data.length > 0) {
+                const gId2 = habBackend.data[0].id;
+                await supabase.from('habilidades_tags').insert([
+                    {grupo_id: gId2, tag: 'Firebase'},{grupo_id: gId2, tag: 'Git & GitHub'},{grupo_id: gId2, tag: 'Onshape'},{grupo_id: gId2, tag: 'AutoCAD'}
+                ]);
+            }
+
+            showToast('Migração finalizada! Recarregando...', 'ph-check-circle');
+            setTimeout(()=> location.reload(), 2000);
+        } catch(e) {
+            console.error('Erro na migração', e);
+            showToast('Erro ao migrar dados.', 'ph-warning');
+        }
     }
 
     // ===== STATE =====
-    let data = loadData();
+    let data = {
+        version: 2,
+        header: { logo: 'bhsti.online', subtitle: 'Sistemas e Aplicações Web' },
+        rows: [],
+        footer: '© 2026 bhsti.online. Todos os direitos reservados.'
+    };
+    
     let isEditMode = false;
     let expandedCards = new Set();
 
@@ -122,36 +110,129 @@
     const saveExitBtn = document.getElementById('saveExitBtn');
     const resetDataBtn = document.getElementById('resetDataBtn');
 
-    // ===== DATA PERSISTENCE =====
-    function loadData() {
+    // ===== SUPABASE DATA RETRIEVAL =====
+    async function fetchFromSupabase() {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                // Migrate old body format (string -> array)
-                if (parsed.rows) {
-                    parsed.rows.forEach(row => {
-                        (row.sections || []).forEach(sec => {
-                            if (sec.type === 'timeline' && sec.items) {
-                                sec.items.forEach(item => {
-                                    if (typeof item.body === 'string') {
-                                        item.body = [item.body];
-                                    }
-                                });
-                            }
-                        });
-                    });
-                }
-                return parsed;
+            // Load header/footer state from LocalStorage if customized
+            const savedLocal = localStorage.getItem(STORAGE_KEY);
+            if(savedLocal) {
+                const parsed = JSON.parse(savedLocal);
+                if(parsed.header) data.header = parsed.header;
+                if(parsed.footer) data.footer = parsed.footer;
             }
-        } catch (e) {
-            console.warn('Failed to load data:', e);
+
+            if (!supabase) {
+                throw new Error("Supabase não configurado.");
+            }
+
+            const { data: projetos } = await supabase.from('projetos').select('*').order('id');
+            const { data: cronogramas } = await supabase.from('cronograma').select('*').order('id');
+            const { data: grupos } = await supabase.from('habilidades_grupos').select('*').order('id');
+            const { data: tags } = await supabase.from('habilidades_tags').select('*').order('id');
+
+            const parseBody = (str) => {
+                try {
+                    const parsed = JSON.parse(str);
+                    if(Array.isArray(parsed)) return parsed;
+                    return [str || ''];
+                } catch(e) { return [str || '']; }
+            };
+
+            const expData = (cronogramas||[]).filter(c => c.categoria === 'Experiências');
+            const estData = (cronogramas||[]).filter(c => c.categoria === 'Estudos');
+            const formData = (cronogramas||[]).filter(c => c.categoria === 'Formação');
+            
+            const pGroup = (projetos||[]).map(p => ({
+                id: p.id, title: p.titulo, desc: p.descricao, icon: p.icone, link: p.link_projeto
+            }));
+
+            const eGroup = expData.map(c => ({
+                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
+            }));
+            const estGroup = estData.map(c => ({
+                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
+            }));
+            const formGroup = formData.map(c => ({
+                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
+            }));
+            
+            const gruposMap = (grupos||[]).map(g => ({
+                id: g.id,
+                title: g.titulo,
+                tagsData: (tags||[]).filter(t => t.grupo_id === g.id).map(t => ({id: t.id, tag: t.tag}))
+            }));
+
+            // Montar data.rows estruturalmente baseado nos novos dados
+            data.rows = [
+                {
+                    id: 'r_proj', layout: 'full',
+                    sections: [{id: 's_proj', tabela: 'projetos', type: 'projects', title: 'Projetos Selecionados', icon: 'ph-squares-four', items: pGroup}]
+                },
+                {
+                    id: 'r_timeline1', layout: 'columns',
+                    sections: [
+                        {id: 's_exp', tabela: 'cronograma', categoriaRef: 'Experiências', type: 'timeline', title: 'Experiências', icon: 'ph-briefcase', items: eGroup},
+                        {id: 's_est', tabela: 'cronograma', categoriaRef: 'Estudos', type: 'timeline', title: 'Estudos', icon: 'ph-graduation-cap', items: estGroup}
+                    ]
+                },
+                {
+                    id: 'r_timeline2', layout: 'columns',
+                    sections: [
+                        {id: 's_form', tabela: 'cronograma', categoriaRef: 'Formação', type: 'timeline', title: 'Formação', icon: 'ph-graduation-cap', items: formGroup},
+                        {id: 's_hab', tabela: 'habilidades_grupos', type: 'skills', title: 'Habilidades', icon: 'ph-lightning', groups: gruposMap}
+                    ]
+                }
+            ];
+
+            render();
+        } catch(e) {
+            console.warn('Falha de conexão Supabase ou não configurado', e);
+            if (!supabase) {
+                showToast('Aviso: Configure as credenciais do Supabase no app.js', 'ph-warning');
+            } else {
+                showToast('Erro ao carregar dados do banco.', 'ph-warning');
+            }
+            
+            // Garantir que a estrutura base seja renderizada mesmo se o Supabase falhar/estiver sem credencial
+            // Assim a página não fica em branco e o botão admin funciona.
+            data.rows = [
+                {
+                    id: 'r_proj', layout: 'full',
+                    sections: [{id: 's_proj', tabela: 'projetos', type: 'projects', title: 'Projetos Selecionados', icon: 'ph-squares-four', items: []}]
+                },
+                {
+                    id: 'r_timeline1', layout: 'columns',
+                    sections: [
+                        {id: 's_exp', tabela: 'cronograma', categoriaRef: 'Experiências', type: 'timeline', title: 'Experiências', icon: 'ph-briefcase', items: []},
+                        {id: 's_est', tabela: 'cronograma', categoriaRef: 'Estudos', type: 'timeline', title: 'Estudos', icon: 'ph-graduation-cap', items: []}
+                    ]
+                },
+                {
+                    id: 'r_timeline2', layout: 'columns',
+                    sections: [
+                        {id: 's_form', tabela: 'cronograma', categoriaRef: 'Formação', type: 'timeline', title: 'Formação', icon: 'ph-graduation-cap', items: []},
+                        {id: 's_hab', tabela: 'habilidades_grupos', type: 'skills', title: 'Habilidades', icon: 'ph-lightning', groups: []}
+                    ]
+                }
+            ];
+            render();
         }
-        return createDefaultData();
     }
 
-    function saveData() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    // Salvar itens estruturais simples: Footer, Header UI locally
+    function saveLocalUIState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            header: data.header,
+            footer: data.footer
+        }));
+    }
+
+    // Atualiza um item individual no Supabase
+    async function atualizarCampoGlobal(tabela, id, payload) {
+        if(!id || (typeof id === 'string' && id.startsWith('id_'))) return; // Item ainda mockado no local sem bind
+        try {
+            await supabase.from(tabela).update(payload).eq('id', id);
+        } catch(e) { console.error('Erro Update Supabase:', e); }
     }
 
     // ===== TOAST =====
@@ -216,7 +297,6 @@
         modalOverlay.innerHTML = html;
         modalOverlay.classList.add('visible');
 
-        // Icon picker logic
         var iconPickers = modalOverlay.querySelectorAll('.icon-picker');
         iconPickers.forEach(function (picker) {
             picker.addEventListener('click', function (e) {
@@ -227,11 +307,9 @@
             });
         });
 
-        // Focus first input
         var firstInput = modalOverlay.querySelector('.form-input, .form-textarea');
         if (firstInput) setTimeout(function () { firstInput.focus(); }, 100);
 
-        // Enter key to confirm
         var inputs = modalOverlay.querySelectorAll('.form-input, .form-textarea');
         inputs.forEach(function (input) {
             input.addEventListener('keydown', function (e) {
@@ -295,14 +373,6 @@
                     var wrapper = document.createElement('div');
                     if (isEditMode) wrapper.className = 'edit-section-wrapper';
                     wrapper.appendChild(renderSection(section, row.id));
-
-                    if (isEditMode) {
-                        var deleteBtn = createDeleteBtn();
-                        deleteBtn.title = 'Remover seção';
-                        deleteBtn.addEventListener('click', function () { confirmDeleteRow(row.id); });
-                        wrapper.appendChild(deleteBtn);
-                    }
-
                     wrapper.style.animationDelay = (rowIndex * 0.08) + 's';
                     wrapper.classList.add('animate-in');
                     mainContent.appendChild(wrapper);
@@ -317,14 +387,6 @@
                 row.sections.forEach(function (section) {
                     grid.appendChild(renderSection(section, row.id));
                 });
-
-                if (isEditMode) {
-                    var deleteBtn = createDeleteBtn();
-                    deleteBtn.title = 'Remover linha';
-                    deleteBtn.addEventListener('click', function () { confirmDeleteRow(row.id); });
-                    grid.appendChild(deleteBtn);
-                }
-
                 mainContent.appendChild(grid);
             }
         });
@@ -335,20 +397,17 @@
             footerText.contentEditable = 'true';
             footerText.addEventListener('blur', function () {
                 data.footer = footerText.textContent.trim();
-                saveData();
+                saveLocalUIState();
             });
         }
 
         // Header editability
-        var logoEl = document.getElementById('logo');
         var subtitleEl = document.getElementById('subtitle');
-
         if (isEditMode) {
-            // We keep the dot span, so we use a special approach
             subtitleEl.contentEditable = 'true';
             subtitleEl.addEventListener('blur', function () {
                 data.header.subtitle = subtitleEl.textContent.trim();
-                saveData();
+                saveLocalUIState();
             });
         }
     }
@@ -358,7 +417,6 @@
         if (section.type === 'timeline') return renderTimelineSection(section);
         if (section.type === 'skills') return renderSkillsSection(section);
 
-        // Fallback
         var div = document.createElement('div');
         div.textContent = 'Seção desconhecida';
         return div;
@@ -372,14 +430,6 @@
         var titleSpan = document.createElement('span');
         titleSpan.textContent = section.title;
         h2.appendChild(titleSpan);
-
-        if (isEditMode) {
-            titleSpan.contentEditable = 'true';
-            titleSpan.addEventListener('blur', function () {
-                section.title = titleSpan.textContent.trim();
-                saveData();
-            });
-        }
 
         return h2;
     }
@@ -415,26 +465,23 @@
                 descEl.contentEditable = 'true';
 
                 titleEl.addEventListener('blur', function () {
-                    item.title = titleEl.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('projetos', item.id, {titulo: titleEl.textContent.trim()});
                 });
 
                 descEl.addEventListener('blur', function () {
-                    item.desc = descEl.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('projetos', item.id, {descricao: descEl.textContent.trim()});
                 });
 
                 card.style.position = 'relative';
                 var delBtn = createDeleteBtn();
                 delBtn.addEventListener('click', function () {
-                    confirmDeleteItem(section, item.id, 'projeto');
+                    confirmDeleteItem('projetos', item.id, 'projeto');
                 });
                 card.appendChild(delBtn);
-            } else {
+            } else if (item.link && item.link !== '#') {
                 card.style.cursor = 'pointer';
-                card.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    showToast('Realizando ajustes, tente novamente em breve', 'ph-wrench');
+                card.addEventListener('click', function () {
+                    window.location.href = item.link;
                 });
             }
 
@@ -472,41 +519,34 @@
             var content = document.createElement('div');
             content.className = 'timeline-content';
 
-            // Badge
             var badge = document.createElement('span');
             badge.className = 'timeline-badge' + (item.badgeType === 'secondary' ? ' timeline-badge-secondary' : '');
             badge.textContent = item.badge;
             content.appendChild(badge);
 
-            // Title
             var title = document.createElement('h3');
             title.className = 'timeline-title';
             title.textContent = item.title;
             content.appendChild(title);
 
-            // Company
             var company = document.createElement('p');
             company.className = 'timeline-company';
             company.textContent = item.company;
             content.appendChild(company);
 
-            // Body
             var bodyDiv = document.createElement('div');
             bodyDiv.className = 'timeline-body';
 
-            var bodyArr = Array.isArray(item.body) ? item.body : [item.body || ''];
-            bodyArr.forEach(function (text, bIdx) {
+            item.body.forEach(function (text, bIdx) {
                 var p = document.createElement('p');
                 p.textContent = text;
-
                 if (isEditMode) {
                     p.contentEditable = 'true';
                     p.addEventListener('blur', function () {
                         item.body[bIdx] = p.textContent.trim();
-                        saveData();
+                        atualizarCampoGlobal('cronograma', item.id, {detalhes: JSON.stringify(item.body)});
                     });
                 }
-
                 bodyDiv.appendChild(p);
             });
 
@@ -514,11 +554,11 @@
                 var addBodyBtn = document.createElement('button');
                 addBodyBtn.className = 'edit-add-body-btn';
                 addBodyBtn.innerHTML = '<i class="ph ph-plus"></i> Texto';
-                addBodyBtn.addEventListener('click', function (e) {
+                addBodyBtn.addEventListener('click', async function (e) {
                     e.stopPropagation();
                     item.body.push('Novo parágrafo...');
-                    saveData();
-                    render();
+                    await atualizarCampoGlobal('cronograma', item.id, {detalhes: JSON.stringify(item.body)});
+                    fetchFromSupabase();
                 });
                 bodyDiv.appendChild(addBodyBtn);
             }
@@ -531,31 +571,24 @@
                 company.contentEditable = 'true';
 
                 badge.addEventListener('blur', function () {
-                    item.badge = badge.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('cronograma', item.id, {badge: badge.textContent.trim()});
                 });
                 title.addEventListener('blur', function () {
-                    item.title = title.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('cronograma', item.id, {titulo: title.textContent.trim()});
                 });
                 company.addEventListener('blur', function () {
-                    item.company = company.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('cronograma', item.id, {subtitulo_empresa: company.textContent.trim()});
                 });
 
-                // Prevent card expansion when editing
                 content.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             } else {
                 content.addEventListener('click', function () {
                     var wasExpanded = content.classList.contains('expanded');
-
-                    // Close other expanded cards
                     document.querySelectorAll('.timeline-content.expanded').forEach(function (other) {
                         if (other !== content) other.classList.remove('expanded');
                     });
-
                     content.classList.toggle('expanded');
                 });
             }
@@ -569,7 +602,7 @@
                 delBtn.style.zIndex = '10';
                 delBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    confirmDeleteItem(section, item.id, 'item');
+                    confirmDeleteItem('cronograma', item.id, 'item cronograma');
                 });
                 timelineItem.appendChild(delBtn);
             }
@@ -608,10 +641,10 @@
             var tagsList = document.createElement('div');
             tagsList.className = 'skills-list';
 
-            group.tags.forEach(function (tag, tagIdx) {
+            group.tagsData.forEach(function (tagItem, tagIdx) {
                 var tagSpan = document.createElement('span');
                 tagSpan.className = 'skill-tag';
-                tagSpan.textContent = tag;
+                tagSpan.textContent = tagItem.tag;
 
                 if (isEditMode) {
                     tagSpan.contentEditable = 'true';
@@ -619,18 +652,15 @@
                     tagSpan.style.alignItems = 'center';
 
                     tagSpan.addEventListener('blur', function () {
-                        group.tags[tagIdx] = tagSpan.textContent.trim();
-                        saveData();
+                        atualizarCampoGlobal('habilidades_tags', tagItem.id, {tag: tagSpan.textContent.trim()});
                     });
 
                     var removeTagBtn = document.createElement('button');
                     removeTagBtn.className = 'edit-tag-remove';
                     removeTagBtn.innerHTML = '<i class="ph ph-x"></i>';
-                    removeTagBtn.addEventListener('click', function (e) {
+                    removeTagBtn.addEventListener('click', async function (e) {
                         e.stopPropagation();
-                        group.tags.splice(tagIdx, 1);
-                        saveData();
-                        render();
+                        await confirmDeleteItem('habilidades_tags', tagItem.id, 'tag');
                     });
                     tagSpan.appendChild(removeTagBtn);
                 }
@@ -645,10 +675,10 @@
                 addTagBtn.style.borderStyle = 'dashed';
                 addTagBtn.style.color = 'var(--text-tertiary)';
                 addTagBtn.innerHTML = '<i class="ph ph-plus"></i>';
-                addTagBtn.addEventListener('click', function () {
-                    group.tags.push('Nova Tag');
-                    saveData();
-                    render();
+                addTagBtn.addEventListener('click', async function () {
+                    await supabase.from('habilidades_tags').insert({grupo_id: group.id, tag: 'Nova Tag'});
+                    showToast('Tag adicionada', 'ph-plus');
+                    fetchFromSupabase();
                 });
                 tagsList.appendChild(addTagBtn);
             }
@@ -658,9 +688,23 @@
             if (isEditMode) {
                 groupTitle.contentEditable = 'true';
                 groupTitle.addEventListener('blur', function () {
-                    group.title = groupTitle.textContent.trim();
-                    saveData();
+                    atualizarCampoGlobal('habilidades_grupos', group.id, {titulo: groupTitle.textContent.trim()});
                 });
+                
+                var topRowGroup = document.createElement('div');
+                topRowGroup.style.display = 'flex';
+                topRowGroup.style.justifyContent = 'space-between';
+                topRowGroup.style.alignItems = 'center';
+                topRowGroup.appendChild(groupTitle);
+                
+                var delGroup = createDeleteBtn();
+                delGroup.style.position = 'relative';
+                delGroup.addEventListener('click', async () => {
+                   await confirmDeleteItem('habilidades_grupos', group.id, 'Grupo Inteiro');
+                });
+                topRowGroup.appendChild(delGroup);
+                
+                groupDiv.prepend(topRowGroup);
             }
 
             card.appendChild(groupDiv);
@@ -692,9 +736,8 @@
         return btn;
     }
 
-    // ===== CRUD OPERATIONS =====
+    // ===== CRUD SUPABASE =====
 
-    // --- Add Project ---
     async function addProjectItem(section) {
         var result = await showModal({
             title: 'Novo Projeto',
@@ -708,23 +751,24 @@
         });
 
         if (result && result.title) {
-            section.items.push({
-                id: uid(),
-                title: result.title,
-                desc: result.desc || '',
-                icon: result.icon || 'ph-app-window',
-                link: result.link || '#'
+            const { error } = await supabase.from('projetos').insert({
+                titulo: result.title,
+                descricao: result.desc || '',
+                icone: result.icon || 'ph-app-window',
+                link_projeto: result.link || '#'
             });
-            saveData();
-            render();
-            showToast('Projeto adicionado!', 'ph-check-circle');
+            if(!error) {
+                showToast('Projeto adicionado!', 'ph-check-circle');
+                fetchFromSupabase();
+            } else {
+                showToast('Falha ao adicionar.', 'ph-warning');
+            }
         }
     }
 
-    // --- Add Timeline Item ---
     async function addTimelineItem(section) {
         var result = await showModal({
-            title: 'Novo Item',
+            title: 'Novo Item (' + section.categoriaRef + ')',
             fields: [
                 { key: 'badge', label: 'Badge', type: 'text', placeholder: 'Ex: Atual, Anterior, Em Andamento' },
                 {
@@ -736,27 +780,27 @@
                 },
                 { key: 'title', label: 'Título', type: 'text', placeholder: 'Título do item' },
                 { key: 'company', label: 'Subtítulo / Empresa', type: 'text', placeholder: 'Descrição breve' },
-                { key: 'body', label: 'Detalhes', type: 'textarea', placeholder: 'Texto expandível com mais detalhes...' }
+                { key: 'body', label: 'Detalhes', type: 'textarea', placeholder: 'Texto com mais detalhes...' }
             ],
             confirmText: 'Adicionar'
         });
 
         if (result && result.title) {
-            section.items.push({
-                id: uid(),
+            const { error } = await supabase.from('cronograma').insert({
+                categoria: section.categoriaRef,
                 badge: result.badge || 'Novo',
-                badgeType: result.badgeType || 'primary',
-                title: result.title,
-                company: result.company || '',
-                body: [result.body || '']
+                tipo_badge: result.badgeType || 'primary',
+                titulo: result.title,
+                subtitulo_empresa: result.company || '',
+                detalhes: JSON.stringify([result.body || ''])
             });
-            saveData();
-            render();
-            showToast('Item adicionado!', 'ph-check-circle');
+            if(!error) {
+                showToast('Item adicionado!', 'ph-check-circle');
+                fetchFromSupabase();
+            }
         }
     }
 
-    // --- Add Skill Group ---
     async function addSkillGroup(section) {
         var result = await showModal({
             title: 'Novo Grupo de Habilidades',
@@ -768,96 +812,20 @@
         });
 
         if (result && result.title) {
-            if (!section.groups) section.groups = [];
-            section.groups.push({
-                id: uid(),
-                title: result.title,
-                tags: result.tags ? result.tags.split(',').map(function (t) { return t.trim(); }).filter(Boolean) : []
-            });
-            saveData();
-            render();
-            showToast('Grupo adicionado!', 'ph-check-circle');
+            const { data: gData, error: gError } = await supabase.from('habilidades_grupos').insert({titulo: result.title}).select();
+            if(!gError && gData && gData.length > 0) {
+                const arr = result.tags ? result.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+                if(arr.length > 0) {
+                    const tagPayload = arr.map(t => ({grupo_id: gData[0].id, tag: t}));
+                    await supabase.from('habilidades_tags').insert(tagPayload);
+                }
+                showToast('Grupo adicionado!', 'ph-check-circle');
+                fetchFromSupabase();
+            }
         }
     }
 
-    // --- Add New Section (Row) ---
-    async function addNewSection() {
-        var result = await showModal({
-            title: 'Nova Seção',
-            fields: [
-                { key: 'title', label: 'Título da Seção', type: 'text', placeholder: 'Ex: Certificações, Contato' },
-                {
-                    key: 'type', label: 'Tipo', type: 'select', value: 'timeline',
-                    options: [
-                        { value: 'timeline', label: 'Timeline (cards expansíveis)' },
-                        { value: 'projects', label: 'Projetos (grid de cards)' },
-                        { value: 'skills', label: 'Habilidades (tags)' }
-                    ]
-                },
-                {
-                    key: 'layout', label: 'Layout', type: 'select', value: 'full',
-                    options: [
-                        { value: 'full', label: 'Largura total' },
-                        { value: 'columns', label: 'Duas colunas (adiciona à esquerda)' }
-                    ]
-                },
-                { key: 'icon', label: 'Ícone', type: 'icon-picker', value: 'ph-squares-four' }
-            ],
-            confirmText: 'Criar Seção'
-        });
-
-        if (result && result.title) {
-            var newSection = {
-                id: uid(),
-                type: result.type,
-                title: result.title,
-                icon: result.icon || 'ph-squares-four'
-            };
-
-            if (result.type === 'projects') {
-                newSection.items = [];
-            } else if (result.type === 'timeline') {
-                newSection.items = [];
-            } else if (result.type === 'skills') {
-                newSection.groups = [];
-            }
-
-            if (result.layout === 'columns') {
-                // Create a row with two columns, second is empty timeline by default
-                var secondSection = {
-                    id: uid(),
-                    type: 'timeline',
-                    title: 'Nova Coluna',
-                    icon: 'ph-squares-four',
-                    items: []
-                };
-
-                data.rows.push({
-                    id: uid(),
-                    layout: 'columns',
-                    sections: [newSection, secondSection]
-                });
-            } else {
-                data.rows.push({
-                    id: uid(),
-                    layout: 'full',
-                    sections: [newSection]
-                });
-            }
-
-            saveData();
-            render();
-            showToast('Seção criada!', 'ph-check-circle');
-
-            // Scroll to new section
-            setTimeout(function () {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 100);
-        }
-    }
-
-    // --- Delete Item ---
-    async function confirmDeleteItem(section, itemId, label) {
+    async function confirmDeleteItem(tabela, itemId, label) {
         var result = await showModal({
             title: 'Confirmar Exclusão',
             fields: [],
@@ -867,33 +835,11 @@
         });
 
         if (result) {
-            if (section.items) {
-                section.items = section.items.filter(function (i) { return i.id !== itemId; });
+            const { error } = await supabase.from(tabela).delete().eq('id', itemId);
+            if(!error) {
+                showToast(label + ' removido(a).', 'ph-trash');
+                fetchFromSupabase();
             }
-            if (section.groups) {
-                section.groups = section.groups.filter(function (g) { return g.id !== itemId; });
-            }
-            saveData();
-            render();
-            showToast('Item removido.', 'ph-trash');
-        }
-    }
-
-    // --- Delete Row ---
-    async function confirmDeleteRow(rowId) {
-        var result = await showModal({
-            title: 'Remover Seção Inteira?',
-            fields: [],
-            confirmText: 'Excluir',
-            cancelText: 'Cancelar',
-            dangerConfirm: true
-        });
-
-        if (result) {
-            data.rows = data.rows.filter(function (r) { return r.id !== rowId; });
-            saveData();
-            render();
-            showToast('Seção removida.', 'ph-trash');
         }
     }
 
@@ -933,41 +879,24 @@
         document.body.classList.remove('edit-mode-active');
         customizeBtn.classList.remove('active');
         adminToolbar.classList.remove('visible');
-        saveData();
-        render();
-        showToast('Alterações salvas!', 'ph-floppy-disk');
-    }
-
-    // ===== RESET DATA =====
-    async function resetAllData() {
-        var result = await showModal({
-            title: 'Resetar Todos os Dados?',
-            fields: [],
-            confirmText: 'Resetar Tudo',
-            cancelText: 'Cancelar',
-            dangerConfirm: true
-        });
-
-        if (result) {
-            data = createDefaultData();
-            saveData();
-            render();
-            showToast('Dados restaurados ao padrão!', 'ph-arrow-counter-clockwise');
-        }
+        showToast('Saída do Modo Admin', 'ph-floppy-disk');
+        fetchFromSupabase();
     }
 
     // ===== EVENT LISTENERS =====
     customizeBtn.addEventListener('click', toggleEditMode);
-    addSectionBtn.addEventListener('click', addNewSection);
+    
+    // Opcional: remover "nova seção" se sua modelagem não suporta novas seções dinâmicas estruturais globalmente.
+    if(addSectionBtn) addSectionBtn.style.display = 'none'; 
+    if(resetDataBtn) resetDataBtn.style.display = 'none';
+
     saveExitBtn.addEventListener('click', exitEditMode);
-    resetDataBtn.addEventListener('click', resetAllData);
 
     // ===== INITIALIZATION =====
     function init() {
-        render();
+        fetchFromSupabase();
     }
 
-    // Wait for DOM and fonts
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
