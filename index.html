@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bhsti.online | Portfólio de Sistemas</title>
+    <meta name="description" content="Portfólio de sistemas e aplicações web desenvolvidos por bhsti.online. Soluções em Flutter, Firebase e desenvolvimento web.">
+    <meta name="theme-color" content="#121212">
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header class="header" id="header">
+        <div class="container">
+            <h1 class="logo" id="logo">bhsti.online<span class="dot">.</span></h1>
+            <p class="subtitle" id="subtitle">Sistemas e Aplicações Web</p>
+        </div>
+    </header>
+
+    <main class="container" id="mainContent">
+        <!-- Dynamically rendered by app.js -->
+    </main>
+
+    <footer class="footer" id="footer">
+        <div class="container">
+            <p id="footerText"></p>
+        </div>
+    </footer>
+
+    <button class="customize-btn" id="customizeBtn" title="Personalizar">
+        <i class="ph ph-gear"></i>
+    </button>
+
+    <!-- Admin Toolbar -->
+    <div class="admin-toolbar" id="adminToolbar">
+        <div class="admin-toolbar-inner container">
+            <span class="admin-badge"><i class="ph ph-pencil-simple"></i> Modo Admin</span>
+            <div class="admin-actions">
+                <button class="admin-btn" id="addSectionBtn">
+                    <i class="ph ph-plus"></i> Nova Seção
+                </button>
+                <button class="admin-btn" id="resetDataBtn">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Resetar
+                </button>
+                <button class="admin-btn admin-btn-save" id="saveExitBtn">
+                    <i class="ph ph-floppy-disk"></i> Salvar & Sair
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
