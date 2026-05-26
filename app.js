@@ -1,906 +1,1059 @@
+/* ==========================================================================
+   MOTION ENGINE & DATA BINDING - APP.JS (bhsti.online Premium Portfolio)
+   ========================================================================== */
+
 (function () {
     'use strict';
 
-    // ===== CONSTANTS =====
-    const STORAGE_KEY = 'bhlti_portfolio_data';
-    const PASSWORD = '0410';
+    // ===== CONSTANTS & STATE =====
+    const STORAGE_KEY_CREDS = 'bhsti_supabase_credentials';
+    const PASSWORD_ADMIN = '0410'; // Feature parity with original site password
 
-    // ======= CONFIGURAÇÃO SUPABASE ========
-    // Substitua pela sua URL e ROLE KEY/ANON KEY reais
-    const SUPABASE_URL = 'SUA_URL_SUPABASE'; 
-    const SUPABASE_KEY = 'SUA_CHAVE_ANON_SUPABASE';
     let supabase = null;
-    try {
-        if (SUPABASE_URL.startsWith('http')) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-    } catch(e) {
-        console.warn('Supabase não inicializado ou URL inválida.');
-    }
+    let isEditMode = false;
 
+    // Local fallback data to guarantee visual excellence out of the box
+    let fallbackData = {
+        projetos: [
+            { id: 1, titulo: 'ActiveGym / IronPulse', descricao: 'Plataforma robusta para gestão de academias, matrículas, treinos personalizados, agendamento de aulas e acompanhamento físico com dashboards analíticos em tempo real.', icone: 'ph-barbell', link_projeto: '#', accent: 'orange', tags: 'Flutter, Firebase, Web & Mobile' },
+            { id: 2, titulo: 'NexusERP', descricao: 'Sistema empresarial e frente de caixa (PDV) com gestão integrada de estoque com alertas, fluxo de caixa unificado e relatórios analíticos de faturamento rápidos.', icone: 'ph-storefront', link_projeto: '#', accent: 'cyan', tags: 'HTML5/JS, Supabase, Tailwind' },
+            { id: 3, titulo: 'MindFlow', descricao: 'Ambiente criativo infinito em tela (Infinite Canvas) para mapeamento mental, encadeamento de ideias, anotações rápidas e conexões de fluxos corporativos em equipe.', icone: 'ph-brain', link_projeto: '#', accent: 'purple', tags: 'React, NodeJS, Canvas API' }
+        ],
+        cronograma: [
+            { id: 1, categoria: 'Experiências', badge: 'Atual', tipo_badge: 'primary', titulo: 'Desenvolvedor Flutter & Firebase', subtitulo_empresa: 'Sistemas Web & Mobile', detalhes: 'Especialista na criação de soluções escaláveis utilizando Flutter para o frontend e Firebase para infraestrutura serverless, autenticação e banco de dados em tempo real.' },
+            { id: 2, categoria: 'Experiências', badge: 'Anterior', tipo_badge: 'secondary', titulo: 'Profissional Industrial', subtitulo_empresa: 'Mars Wrigley', detalhes: 'Otimização de processos produtivos, atuação em linhas de produção de alta performance e projetos Kaizen seguindo metodologias ágeis de melhoria contínua.' },
+            { id: 3, categoria: 'Estudos', badge: 'Estudos', tipo_badge: 'primary', titulo: 'Modelagem 3D & Projetos Mecânicos', subtitulo_empresa: 'Onshape, CATIA & AutoCAD', detalhes: 'Desenvolvimento de desenhos técnicos detalhados e peças industriais complexas tridimensionais (como raspadores de alto desgaste).' },
+            { id: 4, categoria: 'Formação', badge: 'Graduação', tipo_badge: 'primary', titulo: 'Análise e Desenvolvimento de Sistemas', subtitulo_empresa: 'Ensino Superior', detalhes: 'Formação estruturada com foco em arquitetura de software, banco de dados relacionais e não relacionais, metodologias ágeis de entrega contínua.' }
+        ],
+        habilidades: [
+            { id: 1, titulo: 'Frontend', tags: ['Flutter', 'HTML5', 'CSS3', 'JavaScript'] },
+            { id: 2, titulo: 'Backend & Ferramentas', tags: ['Firebase', 'Supabase', 'Git & GitHub', 'NodeJS'] },
+            { id: 3, titulo: 'Engenharia & 3D', tags: ['Onshape', 'CATIA', 'AutoCAD', 'Desenho Técnico'] }
+        ]
+    };
+
+    // Available icons for picker
     const AVAILABLE_ICONS = [
-        'ph-squares-four', 'ph-map-trifold', 'ph-storefront', 'ph-briefcase',
-        'ph-graduation-cap', 'ph-lightning', 'ph-code', 'ph-database',
-        'ph-globe', 'ph-app-window', 'ph-rocket', 'ph-gear',
-        'ph-chart-line', 'ph-shield-check', 'ph-users', 'ph-calendar',
-        'ph-chat-circle-text', 'ph-image', 'ph-file-text', 'ph-terminal',
-        'ph-cpu', 'ph-device-mobile', 'ph-paint-brush', 'ph-book',
-        'ph-certificate', 'ph-truck', 'ph-package', 'ph-wrench',
-        'ph-heart', 'ph-star', 'ph-flag', 'ph-house'
+        'ph-barbell', 'ph-storefront', 'ph-brain', 'ph-squares-four', 'ph-briefcase',
+        'ph-graduation-cap', 'ph-lightning', 'ph-code', 'ph-database', 'ph-globe',
+        'ph-app-window', 'ph-rocket', 'ph-gear', 'ph-chart-line', 'ph-shield-check',
+        'ph-users', 'ph-calendar', 'ph-chat-circle-text', 'ph-image', 'ph-terminal',
+        'ph-cpu', 'ph-device-mobile', 'ph-paint-brush', 'ph-wrench', 'ph-heart', 'ph-star'
     ];
 
-    // ===== UTILITY =====
-    function uid() {
-        return 'id_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-    }
-
-    function escapeHtml(str) {
-        if(!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-
-    // Script para enviar os dados estáticos locais para o Supabase (para não perdê-los)
-    // Para rodar, digite no console: migrarDadosLocaisParaSupabase()
-    window.migrarDadosLocaisParaSupabase = async function() {
-        showToast('Iniciando migração dos dados...', 'ph-cloud-arrow-up');
-        try {
-            // 1. Projetos
-            const projetos = [
-                {titulo: 'Terradata', descricao: 'Sistema de Gestão Territorial', icone: 'ph-map-trifold', link_projeto: '/terradata/'},
-                {titulo: 'PDV Mercadinho', descricao: 'Frente de Caixa e Gestão', icone: 'ph-storefront', link_projeto: '/pdv-mercadinho/'}
-            ];
-            await supabase.from('projetos').insert(projetos);
-
-            // 2. Cronograma
-            const expediencias = [
-                {categoria: 'Experiências', badge: 'Atual', tipo_badge: 'primary', titulo: 'Desenvolvedor Flutter & Firebase', subtitulo_empresa: 'Desenvolvimento de sistemas PDV e arquitetura de aplicações web/mobile.', detalhes: JSON.stringify(['Especialista na criação de soluções escaláveis utilizando Flutter para o frontend e Firebase para infraestrutura serverless, autenticação e banco de dados em tempo real.'])},
-                {categoria: 'Experiências', badge: 'Anterior', tipo_badge: 'secondary', titulo: 'Profissional Industrial - Mars Wrigley', subtitulo_empresa: 'Atuação em linhas de produção de alta performance e projetos Kaizen.', detalhes: JSON.stringify(['Otimização de processos produtivos e implementação de melhorias contínuas seguindo a metodologia Lean Manufacturing.'])},
-                {categoria: 'Estudos', badge: 'Em Andamento', tipo_badge: 'primary', titulo: 'Modelagem 3D e Projetos Mecânicos', subtitulo_empresa: 'Desenvolvimento de peças industriais (como raspadores) utilizando Onshape, CATIA e AutoCAD.', detalhes: JSON.stringify(['Criação de modelos tridimensionais complexos e detalhamento de desenhos técnicos para fabricação industrial.'])},
-                {categoria: 'Estudos', badge: 'Em Andamento', tipo_badge: 'primary', titulo: 'Inglês Técnico', subtitulo_empresa: 'Foco em vocabulário corporativo, TI e conversação.', detalhes: JSON.stringify(['Aprimoramento da comunicação em ambientes profissionais internacionais e compreensão de documentações técnicas.'])},
-                {categoria: 'Formação', badge: 'Graduação', tipo_badge: 'primary', titulo: 'Análise e Desenvolvimento de Sistemas', subtitulo_empresa: 'Instituição de Ensino Superior', detalhes: JSON.stringify(['Foco em engenharia de software, banco de dados, desenvolvimento web e metodologias ágeis.'])}
-            ];
-            await supabase.from('cronograma').insert(expediencias);
-
-            // 3. Habilidades Grupos e Tags
-            const habFrontend = await supabase.from('habilidades_grupos').insert({titulo: 'Frontend'}).select();
-            if(habFrontend.data && habFrontend.data.length > 0) {
-                const gId = habFrontend.data[0].id;
-                await supabase.from('habilidades_tags').insert([
-                    {grupo_id: gId, tag: 'Flutter'},{grupo_id: gId, tag: 'HTML5'},{grupo_id: gId, tag: 'CSS3'},{grupo_id: gId, tag: 'JavaScript'}
-                ]);
-            }
-            
-            const habBackend = await supabase.from('habilidades_grupos').insert({titulo: 'Backend & Ferramentas'}).select();
-            if(habBackend.data && habBackend.data.length > 0) {
-                const gId2 = habBackend.data[0].id;
-                await supabase.from('habilidades_tags').insert([
-                    {grupo_id: gId2, tag: 'Firebase'},{grupo_id: gId2, tag: 'Git & GitHub'},{grupo_id: gId2, tag: 'Onshape'},{grupo_id: gId2, tag: 'AutoCAD'}
-                ]);
-            }
-
-            showToast('Migração finalizada! Recarregando...', 'ph-check-circle');
-            setTimeout(()=> location.reload(), 2000);
-        } catch(e) {
-            console.error('Erro na migração', e);
-            showToast('Erro ao migrar dados.', 'ph-warning');
-        }
-    }
-
-    // ===== STATE =====
-    let data = {
-        version: 2,
-        header: { logo: 'bhsti.online', subtitle: 'Sistemas e Aplicações Web' },
-        rows: [],
-        footer: '© 2026 bhsti.online. Todos os direitos reservados.'
-    };
-    
-    let isEditMode = false;
-    let expandedCards = new Set();
-
     // ===== DOM REFERENCES =====
-    const mainContent = document.getElementById('mainContent');
-    const footerText = document.getElementById('footerText');
-    const customizeBtn = document.getElementById('customizeBtn');
-    const adminToolbar = document.getElementById('adminToolbar');
+    const customCursor = document.getElementById('customCursor');
+    const customCursorFollower = document.getElementById('customCursorFollower');
+    const heroCanvas = document.getElementById('heroCanvas');
+    const navbar = document.getElementById('navbar');
+    
+    // Tracks & Lists
+    const projectsTrack = document.getElementById('projectsTrack');
+    const experienceList = document.getElementById('experienceList');
+    const educationList = document.getElementById('educationList');
+    const skillsGrid = document.getElementById('skillsGrid');
+    
+    // Drawer
+    const adminDrawer = document.getElementById('adminDrawer');
+    const adminToggleBtn = document.getElementById('adminToggleBtn');
+    const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const saveDbCredentialsBtn = document.getElementById('saveDbCredentialsBtn');
+    const enterAdminModeBtn = document.getElementById('enterAdminModeBtn');
+    const exitAdminModeBtn = document.getElementById('exitAdminModeBtn');
+    const addProjectBtn = document.getElementById('addProjectBtn');
+    const addTimelineBtn = document.getElementById('addTimelineBtn');
+    const addSkillGroupBtn = document.getElementById('addSkillGroupBtn');
+    const adminControlsContainer = document.getElementById('adminControlsContainer');
+    
+    // Form Inputs
+    const supabaseUrlInput = document.getElementById('supabaseUrlInput');
+    const supabaseKeyInput = document.getElementById('supabaseKeyInput');
+    const adminPasswordInput = document.getElementById('adminPasswordInput');
+    
+    // Overlays
     const modalOverlay = document.getElementById('modalOverlay');
     const toastContainer = document.getElementById('toastContainer');
-    const addSectionBtn = document.getElementById('addSectionBtn');
-    const saveExitBtn = document.getElementById('saveExitBtn');
-    const resetDataBtn = document.getElementById('resetDataBtn');
 
-    // ===== SUPABASE DATA RETRIEVAL =====
-    async function fetchFromSupabase() {
-        try {
-            // Load header/footer state from LocalStorage if customized
-            const savedLocal = localStorage.getItem(STORAGE_KEY);
-            if(savedLocal) {
-                const parsed = JSON.parse(savedLocal);
-                if(parsed.header) data.header = parsed.header;
-                if(parsed.footer) data.footer = parsed.footer;
-            }
+    // ===== INITIALIZATION =====
+    document.addEventListener('DOMContentLoaded', () => {
+        setupCustomCursor();
+        initLenisWithGSAP();
+        initHeroCanvasParticles();
+        loadCredentials();
+        fetchData();
+        setupDrawerEvents();
+        setupHeroReveal();
+    });
 
-            if (!supabase) {
-                throw new Error("Supabase não configurado.");
-            }
+    // ===== 1. LENIS SMOOTH SCROLL & GSAP SYNC =====
+    let lenisInstance = null;
 
-            const { data: projetos } = await supabase.from('projetos').select('*').order('id');
-            const { data: cronogramas } = await supabase.from('cronograma').select('*').order('id');
-            const { data: grupos } = await supabase.from('habilidades_grupos').select('*').order('id');
-            const { data: tags } = await supabase.from('habilidades_tags').select('*').order('id');
+    function initLenisWithGSAP() {
+        gsap.registerPlugin(ScrollTrigger);
 
-            const parseBody = (str) => {
-                try {
-                    const parsed = JSON.parse(str);
-                    if(Array.isArray(parsed)) return parsed;
-                    return [str || ''];
-                } catch(e) { return [str || '']; }
-            };
+        // Initialize Lenis
+        lenisInstance = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Easing premium
+            smoothWheel: true,
+            smoothTouch: false
+        });
 
-            const expData = (cronogramas||[]).filter(c => c.categoria === 'Experiências');
-            const estData = (cronogramas||[]).filter(c => c.categoria === 'Estudos');
-            const formData = (cronogramas||[]).filter(c => c.categoria === 'Formação');
-            
-            const pGroup = (projetos||[]).map(p => ({
-                id: p.id, title: p.titulo, desc: p.descricao, icon: p.icone, link: p.link_projeto
-            }));
+        // Sync ScrollTrigger on scroll
+        lenisInstance.on('scroll', ScrollTrigger.update);
 
-            const eGroup = expData.map(c => ({
-                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
-            }));
-            const estGroup = estData.map(c => ({
-                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
-            }));
-            const formGroup = formData.map(c => ({
-                id: c.id, badge: c.badge, badgeType: c.tipo_badge, title: c.titulo, company: c.subtitulo_empresa, body: parseBody(c.detalhes)
-            }));
-            
-            const gruposMap = (grupos||[]).map(g => ({
-                id: g.id,
-                title: g.titulo,
-                tagsData: (tags||[]).filter(t => t.grupo_id === g.id).map(t => ({id: t.id, tag: t.tag}))
-            }));
+        // Feed Lenis loop to GSAP ticker
+        gsap.ticker.add((time) => {
+            lenisInstance.raf(time * 1000);
+        });
 
-            // Montar data.rows estruturalmente baseado nos novos dados
-            data.rows = [
-                {
-                    id: 'r_proj', layout: 'full',
-                    sections: [{id: 's_proj', tabela: 'projetos', type: 'projects', title: 'Projetos Selecionados', icon: 'ph-squares-four', items: pGroup}]
-                },
-                {
-                    id: 'r_timeline1', layout: 'columns',
-                    sections: [
-                        {id: 's_exp', tabela: 'cronograma', categoriaRef: 'Experiências', type: 'timeline', title: 'Experiências', icon: 'ph-briefcase', items: eGroup},
-                        {id: 's_est', tabela: 'cronograma', categoriaRef: 'Estudos', type: 'timeline', title: 'Estudos', icon: 'ph-graduation-cap', items: estGroup}
-                    ]
-                },
-                {
-                    id: 'r_timeline2', layout: 'columns',
-                    sections: [
-                        {id: 's_form', tabela: 'cronograma', categoriaRef: 'Formação', type: 'timeline', title: 'Formação', icon: 'ph-graduation-cap', items: formGroup},
-                        {id: 's_hab', tabela: 'habilidades_grupos', type: 'skills', title: 'Habilidades', icon: 'ph-lightning', groups: gruposMap}
-                    ]
+        gsap.ticker.lagSmoothing(0);
+
+        // Navbar Hide/Show on Scroll
+        let lastScrollY = 0;
+        lenisInstance.on('scroll', (e) => {
+            if (e.scroll > 100) {
+                if (e.scroll > lastScrollY) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                    navbar.style.backgroundColor = 'rgba(7, 7, 9, 0.85)';
                 }
-            ];
-
-            render();
-        } catch(e) {
-            console.warn('Falha de conexão Supabase ou não configurado', e);
-            if (!supabase) {
-                showToast('Aviso: Configure as credenciais do Supabase no app.js', 'ph-warning');
             } else {
-                showToast('Erro ao carregar dados do banco.', 'ph-warning');
+                navbar.style.transform = 'translateY(0)';
+                navbar.style.backgroundColor = 'rgba(7, 7, 9, 0.6)';
             }
-            
-            // Garantir que a estrutura base seja renderizada mesmo se o Supabase falhar/estiver sem credencial
-            // Assim a página não fica em branco e o botão admin funciona.
-            data.rows = [
-                {
-                    id: 'r_proj', layout: 'full',
-                    sections: [{id: 's_proj', tabela: 'projetos', type: 'projects', title: 'Projetos Selecionados', icon: 'ph-squares-four', items: []}]
-                },
-                {
-                    id: 'r_timeline1', layout: 'columns',
-                    sections: [
-                        {id: 's_exp', tabela: 'cronograma', categoriaRef: 'Experiências', type: 'timeline', title: 'Experiências', icon: 'ph-briefcase', items: []},
-                        {id: 's_est', tabela: 'cronograma', categoriaRef: 'Estudos', type: 'timeline', title: 'Estudos', icon: 'ph-graduation-cap', items: []}
-                    ]
-                },
-                {
-                    id: 'r_timeline2', layout: 'columns',
-                    sections: [
-                        {id: 's_form', tabela: 'cronograma', categoriaRef: 'Formação', type: 'timeline', title: 'Formação', icon: 'ph-graduation-cap', items: []},
-                        {id: 's_hab', tabela: 'habilidades_grupos', type: 'skills', title: 'Habilidades', icon: 'ph-lightning', groups: []}
-                    ]
-                }
-            ];
-            render();
-        }
+            lastScrollY = e.scroll;
+        });
     }
 
-    // Salvar itens estruturais simples: Footer, Header UI locally
-    function saveLocalUIState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            header: data.header,
-            footer: data.footer
-        }));
-    }
+    // ===== 2. HERO PARTICLES MESH CANVAS =====
+    function initHeroCanvasParticles() {
+        if (!heroCanvas) return;
+        const ctx = heroCanvas.getContext('2d');
+        let width = heroCanvas.width = window.innerWidth;
+        let height = heroCanvas.height = window.innerHeight;
 
-    // Atualiza um item individual no Supabase
-    async function atualizarCampoGlobal(tabela, id, payload) {
-        if(!id || (typeof id === 'string' && id.startsWith('id_'))) return; // Item ainda mockado no local sem bind
-        try {
-            await supabase.from(tabela).update(payload).eq('id', id);
-        } catch(e) { console.error('Erro Update Supabase:', e); }
-    }
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 180 };
 
-    // ===== TOAST =====
-    function showToast(message, icon) {
-        icon = icon || 'ph-info';
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = '<i class="ph ' + escapeHtml(icon) + '"></i> ' + escapeHtml(message);
-        toastContainer.appendChild(toast);
-
-        setTimeout(function () {
-            toast.classList.add('leaving');
-            setTimeout(function () { toast.remove(); }, 300);
-        }, 3000);
-    }
-
-    // ===== MODAL SYSTEM =====
-    function showModal(config) {
-        var html = '<div class="modal">';
-        html += '<div class="modal-header">';
-        html += '<h3 class="modal-title">' + escapeHtml(config.title) + '</h3>';
-        html += '<button class="modal-close" id="modalCloseBtn"><i class="ph ph-x"></i></button>';
-        html += '</div>';
-        html += '<div class="modal-body">';
-
-        config.fields.forEach(function (field) {
-            html += '<div class="form-group">';
-            html += '<label class="form-label">' + escapeHtml(field.label) + '</label>';
-
-            if (field.type === 'text' || field.type === 'password') {
-                html += '<input class="form-input" type="' + field.type + '" id="field_' + field.key + '" placeholder="' + escapeHtml(field.placeholder || '') + '" value="' + escapeHtml(field.value || '') + '">';
-            } else if (field.type === 'textarea') {
-                html += '<textarea class="form-textarea" id="field_' + field.key + '" placeholder="' + escapeHtml(field.placeholder || '') + '">' + escapeHtml(field.value || '') + '</textarea>';
-            } else if (field.type === 'select') {
-                html += '<select class="form-select" id="field_' + field.key + '">';
-                field.options.forEach(function (opt) {
-                    var selected = opt.value === field.value ? ' selected' : '';
-                    html += '<option value="' + escapeHtml(opt.value) + '"' + selected + '>' + escapeHtml(opt.label) + '</option>';
-                });
-                html += '</select>';
-            } else if (field.type === 'icon-picker') {
-                html += '<div class="icon-picker" id="field_' + field.key + '">';
-                AVAILABLE_ICONS.forEach(function (iconName) {
-                    var selectedClass = iconName === field.value ? ' selected' : '';
-                    html += '<div class="icon-option' + selectedClass + '" data-icon="' + iconName + '"><i class="ph ' + iconName + '"></i></div>';
-                });
-                html += '</div>';
-            }
-            html += '</div>';
+        window.addEventListener('resize', () => {
+            width = heroCanvas.width = window.innerWidth;
+            height = heroCanvas.height = window.innerHeight;
         });
 
-        html += '</div>';
-        html += '<div class="modal-footer">';
-        if (config.cancelText !== false) {
-            html += '<button class="btn btn-secondary" id="modalCancelBtn">' + escapeHtml(config.cancelText || 'Cancelar') + '</button>';
-        }
-        var btnClass = config.dangerConfirm ? 'btn btn-danger' : 'btn btn-primary';
-        html += '<button class="' + btnClass + '" id="modalConfirmBtn">' + escapeHtml(config.confirmText || 'Confirmar') + '</button>';
-        html += '</div>';
-        html += '</div>';
-
-        modalOverlay.innerHTML = html;
-        modalOverlay.classList.add('visible');
-
-        var iconPickers = modalOverlay.querySelectorAll('.icon-picker');
-        iconPickers.forEach(function (picker) {
-            picker.addEventListener('click', function (e) {
-                var option = e.target.closest('.icon-option');
-                if (!option) return;
-                picker.querySelectorAll('.icon-option').forEach(function (o) { o.classList.remove('selected'); });
-                option.classList.add('selected');
-            });
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
         });
 
-        var firstInput = modalOverlay.querySelector('.form-input, .form-textarea');
-        if (firstInput) setTimeout(function () { firstInput.focus(); }, 100);
-
-        var inputs = modalOverlay.querySelectorAll('.form-input, .form-textarea');
-        inputs.forEach(function (input) {
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' && !e.shiftKey && input.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    document.getElementById('modalConfirmBtn').click();
-                }
-            });
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
         });
 
-        return new Promise(function (resolve) {
-            document.getElementById('modalCloseBtn').addEventListener('click', function () {
-                hideModal();
-                resolve(null);
-            });
-
-            if (document.getElementById('modalCancelBtn')) {
-                document.getElementById('modalCancelBtn').addEventListener('click', function () {
-                    hideModal();
-                    resolve(null);
-                });
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.baseRadius = Math.random() * 2 + 1;
+                this.radius = this.baseRadius;
             }
 
-            document.getElementById('modalConfirmBtn').addEventListener('click', function () {
-                var result = {};
-                config.fields.forEach(function (field) {
-                    if (field.type === 'icon-picker') {
-                        var selected = document.querySelector('#field_' + field.key + ' .icon-option.selected');
-                        result[field.key] = selected ? selected.dataset.icon : field.value || AVAILABLE_ICONS[0];
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 69, 0, 0.35)'; // Orange translucent
+                ctx.fill();
+            }
+
+            update() {
+                // Bounds collision
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Mouse interaction (gravity attraction field)
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < mouse.radius) {
+                        let force = (mouse.radius - dist) / mouse.radius;
+                        this.x -= dx * force * 0.03;
+                        this.y -= dy * force * 0.03;
+                        this.radius = this.baseRadius * (1 + force * 1.5);
                     } else {
-                        var el = document.getElementById('field_' + field.key);
-                        result[field.key] = el ? el.value : '';
+                        this.radius = this.baseRadius;
                     }
-                });
-                hideModal();
-                resolve(result);
-            });
-
-            modalOverlay.addEventListener('click', function (e) {
-                if (e.target === modalOverlay) {
-                    hideModal();
-                    resolve(null);
                 }
-            });
-        });
-    }
-
-    function hideModal() {
-        modalOverlay.classList.remove('visible');
-        setTimeout(function () { modalOverlay.innerHTML = ''; }, 300);
-    }
-
-    // ===== RENDERING ENGINE =====
-    function render() {
-        mainContent.innerHTML = '';
-        expandedCards.clear();
-
-        data.rows.forEach(function (row, rowIndex) {
-            if (row.layout === 'full') {
-                row.sections.forEach(function (section) {
-                    var wrapper = document.createElement('div');
-                    if (isEditMode) wrapper.className = 'edit-section-wrapper';
-                    wrapper.appendChild(renderSection(section, row.id));
-                    wrapper.style.animationDelay = (rowIndex * 0.08) + 's';
-                    wrapper.classList.add('animate-in');
-                    mainContent.appendChild(wrapper);
-                });
-            } else if (row.layout === 'columns') {
-                var grid = document.createElement('div');
-                grid.className = 'columns-grid';
-                if (isEditMode) grid.classList.add('edit-section-wrapper');
-                grid.style.animationDelay = (rowIndex * 0.08) + 's';
-                grid.classList.add('animate-in');
-
-                row.sections.forEach(function (section) {
-                    grid.appendChild(renderSection(section, row.id));
-                });
-                mainContent.appendChild(grid);
             }
-        });
-
-        // Footer
-        footerText.textContent = data.footer;
-        if (isEditMode) {
-            footerText.contentEditable = 'true';
-            footerText.addEventListener('blur', function () {
-                data.footer = footerText.textContent.trim();
-                saveLocalUIState();
-            });
         }
 
-        // Header editability
-        var subtitleEl = document.getElementById('subtitle');
-        if (isEditMode) {
-            subtitleEl.contentEditable = 'true';
-            subtitleEl.addEventListener('blur', function () {
-                data.header.subtitle = subtitleEl.textContent.trim();
-                saveLocalUIState();
-            });
-        }
-    }
-
-    function renderSection(section, rowId) {
-        if (section.type === 'projects') return renderProjectsSection(section);
-        if (section.type === 'timeline') return renderTimelineSection(section);
-        if (section.type === 'skills') return renderSkillsSection(section);
-
-        var div = document.createElement('div');
-        div.textContent = 'Seção desconhecida';
-        return div;
-    }
-
-    function renderSectionTitle(section) {
-        var h2 = document.createElement('h2');
-        h2.className = 'section-title';
-        h2.innerHTML = '<i class="ph ' + escapeHtml(section.icon) + '"></i> ';
-
-        var titleSpan = document.createElement('span');
-        titleSpan.textContent = section.title;
-        h2.appendChild(titleSpan);
-
-        return h2;
-    }
-
-    // ===== PROJECTS RENDERING =====
-    function renderProjectsSection(section) {
-        var container = document.createElement('section');
-        container.className = 'projects-section';
-        container.appendChild(renderSectionTitle(section));
-
-        var grid = document.createElement('div');
-        grid.className = 'projects-grid';
-
-        section.items.forEach(function (item) {
-            var card = document.createElement('div');
-            card.className = 'project-card animate-in';
-
-            card.innerHTML =
-                '<div class="card-icon"><i class="ph ' + escapeHtml(item.icon) + '"></i></div>' +
-                '<div class="card-content">' +
-                    '<h3 class="card-title"></h3>' +
-                    '<p class="card-desc"></p>' +
-                '</div>' +
-                '<div class="card-arrow"><i class="ph ph-arrow-right"></i></div>';
-
-            card.querySelector('.card-title').textContent = item.title;
-            card.querySelector('.card-desc').textContent = item.desc;
-
-            if (isEditMode) {
-                var titleEl = card.querySelector('.card-title');
-                var descEl = card.querySelector('.card-desc');
-                titleEl.contentEditable = 'true';
-                descEl.contentEditable = 'true';
-
-                titleEl.addEventListener('blur', function () {
-                    atualizarCampoGlobal('projetos', item.id, {titulo: titleEl.textContent.trim()});
-                });
-
-                descEl.addEventListener('blur', function () {
-                    atualizarCampoGlobal('projetos', item.id, {descricao: descEl.textContent.trim()});
-                });
-
-                card.style.position = 'relative';
-                var delBtn = createDeleteBtn();
-                delBtn.addEventListener('click', function () {
-                    confirmDeleteItem('projetos', item.id, 'projeto');
-                });
-                card.appendChild(delBtn);
-            } else if (item.link && item.link !== '#') {
-                card.style.cursor = 'pointer';
-                card.addEventListener('click', function () {
-                    window.location.href = item.link;
-                });
-            }
-
-            grid.appendChild(card);
-        });
-
-        container.appendChild(grid);
-
-        if (isEditMode) {
-            var addBtn = createAddBtn('Adicionar Projeto');
-            addBtn.addEventListener('click', function () { addProjectItem(section); });
-            container.appendChild(addBtn);
+        // Initialize particles based on screen resolution
+        const count = Math.min(100, Math.floor((width * height) / 14000));
+        for (let i = 0; i < count; i++) {
+            particles.push(new Particle());
         }
 
-        return container;
-    }
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw lines between close particles
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
 
-    // ===== TIMELINE RENDERING =====
-    function renderTimelineSection(section) {
-        var container = document.createElement('section');
-        container.appendChild(renderSectionTitle(section));
-
-        var timeline = document.createElement('div');
-        timeline.className = 'timeline';
-
-        section.items.forEach(function (item) {
-            var timelineItem = document.createElement('div');
-            timelineItem.className = 'timeline-item animate-in';
-            timelineItem.style.position = 'relative';
-
-            var dot = document.createElement('div');
-            dot.className = 'timeline-dot';
-            timelineItem.appendChild(dot);
-
-            var content = document.createElement('div');
-            content.className = 'timeline-content';
-
-            var badge = document.createElement('span');
-            badge.className = 'timeline-badge' + (item.badgeType === 'secondary' ? ' timeline-badge-secondary' : '');
-            badge.textContent = item.badge;
-            content.appendChild(badge);
-
-            var title = document.createElement('h3');
-            title.className = 'timeline-title';
-            title.textContent = item.title;
-            content.appendChild(title);
-
-            var company = document.createElement('p');
-            company.className = 'timeline-company';
-            company.textContent = item.company;
-            content.appendChild(company);
-
-            var bodyDiv = document.createElement('div');
-            bodyDiv.className = 'timeline-body';
-
-            item.body.forEach(function (text, bIdx) {
-                var p = document.createElement('p');
-                p.textContent = text;
-                if (isEditMode) {
-                    p.contentEditable = 'true';
-                    p.addEventListener('blur', function () {
-                        item.body[bIdx] = p.textContent.trim();
-                        atualizarCampoGlobal('cronograma', item.id, {detalhes: JSON.stringify(item.body)});
-                    });
+                for (let j = i + 1; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        let alpha = (100 - dist) / 100 * 0.08;
+                        ctx.strokeStyle = `rgba(255, 69, 0, ${alpha})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
                 }
-                bodyDiv.appendChild(p);
-            });
-
-            if (isEditMode) {
-                var addBodyBtn = document.createElement('button');
-                addBodyBtn.className = 'edit-add-body-btn';
-                addBodyBtn.innerHTML = '<i class="ph ph-plus"></i> Texto';
-                addBodyBtn.addEventListener('click', async function (e) {
-                    e.stopPropagation();
-                    item.body.push('Novo parágrafo...');
-                    await atualizarCampoGlobal('cronograma', item.id, {detalhes: JSON.stringify(item.body)});
-                    fetchFromSupabase();
-                });
-                bodyDiv.appendChild(addBodyBtn);
             }
-
-            content.appendChild(bodyDiv);
-
-            if (isEditMode) {
-                badge.contentEditable = 'true';
-                title.contentEditable = 'true';
-                company.contentEditable = 'true';
-
-                badge.addEventListener('blur', function () {
-                    atualizarCampoGlobal('cronograma', item.id, {badge: badge.textContent.trim()});
-                });
-                title.addEventListener('blur', function () {
-                    atualizarCampoGlobal('cronograma', item.id, {titulo: title.textContent.trim()});
-                });
-                company.addEventListener('blur', function () {
-                    atualizarCampoGlobal('cronograma', item.id, {subtitulo_empresa: company.textContent.trim()});
-                });
-
-                content.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                });
-            } else {
-                content.addEventListener('click', function () {
-                    var wasExpanded = content.classList.contains('expanded');
-                    document.querySelectorAll('.timeline-content.expanded').forEach(function (other) {
-                        if (other !== content) other.classList.remove('expanded');
-                    });
-                    content.classList.toggle('expanded');
-                });
-            }
-
-            timelineItem.appendChild(content);
-
-            if (isEditMode) {
-                var delBtn = createDeleteBtn();
-                delBtn.style.top = '8px';
-                delBtn.style.right = '-4px';
-                delBtn.style.zIndex = '10';
-                delBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    confirmDeleteItem('cronograma', item.id, 'item cronograma');
-                });
-                timelineItem.appendChild(delBtn);
-            }
-
-            timeline.appendChild(timelineItem);
-        });
-
-        container.appendChild(timeline);
-
-        if (isEditMode) {
-            var addBtn = createAddBtn('Adicionar Item');
-            addBtn.addEventListener('click', function () { addTimelineItem(section); });
-            container.appendChild(addBtn);
+            requestAnimationFrame(animate);
         }
-
-        return container;
+        animate();
     }
 
-    // ===== SKILLS RENDERING =====
-    function renderSkillsSection(section) {
-        var container = document.createElement('section');
-        container.appendChild(renderSectionTitle(section));
+    // ===== 3. HERO TEXT REVEAL =====
+    function setupHeroReveal() {
+        const tl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1.2 } });
 
-        var card = document.createElement('div');
-        card.className = 'skills-card';
+        tl.to('.word-reveal', {
+            y: '0%',
+            stagger: 0.1,
+            delay: 0.2
+        })
+        .to('.hero-badge, .hero-subtitle, .hero-actions, .scroll-indicator', {
+            opacity: 1,
+            y: 0,
+            stagger: 0.1
+        }, '-=0.6');
+    }
 
-        section.groups.forEach(function (group) {
-            var groupDiv = document.createElement('div');
-            groupDiv.className = 'skills-group';
+    // ===== 4. DYNAMIC ACCENT ADAPTATION =====
+    function updateAccent(accentType) {
+        let root = document.documentElement;
+        let spotlight = document.querySelector('.background-spotlight');
+        
+        let primaryColor;
+        if (accentType === 'cyan') {
+            root.style.setProperty('--accent', 'var(--accent-cyan)');
+            primaryColor = 'hsla(var(--accent-cyan), 0.12)';
+        } else if (accentType === 'purple') {
+            root.style.setProperty('--accent', 'var(--accent-purple)');
+            primaryColor = 'hsla(var(--accent-purple), 0.12)';
+        } else {
+            root.style.setProperty('--accent', 'var(--accent-orange)');
+            primaryColor = 'hsla(var(--accent-orange), 0.12)';
+        }
 
-            var groupTitle = document.createElement('h3');
-            groupTitle.className = 'skills-group-title';
-            groupTitle.textContent = group.title;
-            groupDiv.appendChild(groupTitle);
+        // Smooth spotlight transformation
+        spotlight.style.background = `
+            radial-gradient(circle at 10% 20%, hsla(var(--accent-purple), 0.08) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, hsla(var(--accent-cyan), 0.07) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, ${primaryColor} 0%, transparent 50%),
+            radial-gradient(circle at 50% -10%, ${primaryColor} 0%, transparent 50%)
+        `;
+    }
 
-            var tagsList = document.createElement('div');
-            tagsList.className = 'skills-list';
+    // ===== 5. HORIZONTAL PIN SCROLL ANIMATION =====
+    let projectsTrigger = null;
 
-            group.tagsData.forEach(function (tagItem, tagIdx) {
-                var tagSpan = document.createElement('span');
-                tagSpan.className = 'skill-tag';
-                tagSpan.textContent = tagItem.tag;
+    function initHorizontalScroll() {
+        // Kill existing triggers before rebuild to prevent overlap bugs
+        if (projectsTrigger) {
+            projectsTrigger.kill();
+        }
 
-                if (isEditMode) {
-                    tagSpan.contentEditable = 'true';
-                    tagSpan.style.display = 'inline-flex';
-                    tagSpan.style.alignItems = 'center';
+        const track = document.getElementById('projectsTrack');
+        if (!track) return;
 
-                    tagSpan.addEventListener('blur', function () {
-                        atualizarCampoGlobal('habilidades_tags', tagItem.id, {tag: tagSpan.textContent.trim()});
-                    });
-
-                    var removeTagBtn = document.createElement('button');
-                    removeTagBtn.className = 'edit-tag-remove';
-                    removeTagBtn.innerHTML = '<i class="ph ph-x"></i>';
-                    removeTagBtn.addEventListener('click', async function (e) {
-                        e.stopPropagation();
-                        await confirmDeleteItem('habilidades_tags', tagItem.id, 'tag');
-                    });
-                    tagSpan.appendChild(removeTagBtn);
+        // Animate projects horizontal slide
+        projectsTrigger = ScrollTrigger.create({
+            trigger: '.projects-section-container',
+            pin: true,
+            start: 'top top',
+            end: () => `+=${track.scrollWidth - window.innerWidth + 200}`,
+            scrub: 1, // Smooth scrolling catch-up
+            invalidateOnRefresh: true, // Perfect for responsive recalculations
+            animation: gsap.to(track, {
+                x: () => -(track.scrollWidth - window.innerWidth + 80),
+                ease: 'none'
+            }),
+            onUpdate: (self) => {
+                // Adaptive spotlight transition based on current active slides
+                const progress = self.progress;
+                const slides = track.querySelectorAll('.project-slide-card');
+                if (slides.length > 1) {
+                    const activeIndex = Math.min(slides.length - 1, Math.floor(progress * slides.length));
+                    const currentSlide = slides[activeIndex];
+                    if (currentSlide) {
+                        const accent = currentSlide.getAttribute('data-accent');
+                        updateAccent(accent);
+                    }
                 }
+            }
+        });
 
-                tagsList.appendChild(tagSpan);
+        // Trigger dynamic ScrollTrigger recalculations
+        ScrollTrigger.refresh();
+    }
+
+    // ===== 6. TIMELINE & SKILLS SCROLL IN EFFECTS =====
+    function initScrollInEffects() {
+        const cards = gsap.utils.toArray('.animate-scroll-in');
+        cards.forEach(card => {
+            gsap.fromTo(card, 
+                { opacity: 0, y: 40 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: card,
+                        start: 'top 85%',
+                        toggleActions: 'play none none none'
+                    }
+                }
+            );
+        });
+    }
+
+    // ===== 7. CUSTOM MAGNETIC CURSOR =====
+    function setupCustomCursor() {
+        let mouseX = 0, mouseY = 0;
+        let followerX = 0, followerY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Draw core immediately
+            customCursor.style.left = mouseX + 'px';
+            customCursor.style.top = mouseY + 'px';
+        });
+
+        // Follower smooth lagging ease
+        function animateFollower() {
+            let dx = mouseX - followerX;
+            let dy = mouseY - followerY;
+            
+            followerX += dx * 0.15;
+            followerY += dy * 0.15;
+
+            customCursorFollower.style.left = followerX + 'px';
+            customCursorFollower.style.top = followerY + 'px';
+
+            requestAnimationFrame(animateFollower);
+        }
+        animateFollower();
+
+        // Magnetic element mapping
+        function mapCursorInteractions() {
+            const targets = document.querySelectorAll('a, button, .project-slide-card, .timeline-card, .skill-pill, .form-input-drawer');
+            targets.forEach(target => {
+                target.removeEventListener('mouseenter', onMouseEnter);
+                target.removeEventListener('mouseleave', onMouseLeave);
+                
+                target.addEventListener('mouseenter', onMouseEnter);
+                target.addEventListener('mouseleave', onMouseLeave);
+            });
+        }
+
+        function onMouseEnter() {
+            document.body.classList.add('cursor-hover');
+        }
+
+        function onMouseLeave() {
+            document.body.classList.remove('cursor-hover');
+        }
+
+        mapCursorInteractions();
+
+        // Re-bind on dynamic rendering modifications
+        window.rebindCursorInteractions = mapCursorInteractions;
+    }
+
+    // ===== 8. SUPABASE / STATE DATA INTEGRATION =====
+    function loadCredentials() {
+        const creds = localStorage.getItem(STORAGE_KEY_CREDS);
+        if (creds) {
+            try {
+                const parsed = JSON.parse(creds);
+                supabaseUrlInput.value = parsed.url || '';
+                supabaseKeyInput.value = parsed.key || '';
+                
+                if (parsed.url && parsed.key) {
+                    supabase = window.supabase.createClient(parsed.url, parsed.key);
+                }
+            } catch (e) {
+                console.error("Erro credenciais", e);
+            }
+        }
+    }
+
+    async function fetchData() {
+        if (!supabase) {
+            console.warn("Utilizando Fallback Local: Supabase offline");
+            renderData(fallbackData);
+            return;
+        }
+
+        showToast("Conectando ao Supabase...", "ph-cloud");
+        try {
+            const { data: projetos, error: err1 } = await supabase.from('projetos').select('*').order('id');
+            const { data: cronogramas, error: err2 } = await supabase.from('cronograma').select('*').order('id');
+            const { data: grupos, error: err3 } = await supabase.from('habilidades_grupos').select('*').order('id');
+            const { data: tags, error: err4 } = await supabase.from('habilidades_tags').select('*').order('id');
+
+            if (err1 || err2 || err3 || err4) throw new Error("Erro nas tabelas");
+
+            // Format retrieved data to match layout models
+            let data = { projetos: [], cronograma: [], habilidades: [] };
+            
+            // Format Projects
+            const accents = ['orange', 'cyan', 'purple'];
+            data.projetos = (projetos || []).map((p, idx) => ({
+                id: p.id,
+                titulo: p.titulo,
+                descricao: p.descricao,
+                icone: p.icone || 'ph-app-window',
+                link_projeto: p.link_projeto || '#',
+                accent: accents[idx % accents.length],
+                tags: 'Flutter, Web & Mobile'
+            }));
+
+            // Format Timeline
+            data.cronograma = (cronogramas || []).map(c => ({
+                id: c.id,
+                categoria: c.categoria,
+                badge: c.badge,
+                tipo_badge: c.tipo_badge,
+                titulo: c.titulo,
+                subtitulo_empresa: c.subtitulo_empresa,
+                detalhes: parseJSONDetails(c.detalhes)
+            }));
+
+            // Format Skills
+            data.habilidades = (grupos || []).map(g => ({
+                id: g.id,
+                titulo: g.titulo,
+                tags: (tags || []).filter(t => t.grupo_id === g.id).map(t => t.tag)
+            }));
+
+            renderData(data);
+            showToast("Dados sincronizados com sucesso!", "ph-check-circle");
+        } catch (e) {
+            console.error("Falha no banco Supabase", e);
+            showToast("Erro Supabase, carregando local...", "ph-warning");
+            renderData(fallbackData);
+        }
+    }
+
+    function parseJSONDetails(str) {
+        try {
+            const parsed = JSON.parse(str);
+            if (Array.isArray(parsed)) return parsed[0] || '';
+            return str;
+        } catch(e) { return str; }
+    }
+
+    // ===== 9. RENDERING DATA TO VIEWPORTS =====
+    function renderData(data) {
+        // --- Render Projects ---
+        projectsTrack.innerHTML = '';
+        data.projetos.forEach((proj) => {
+            const card = document.createElement('div');
+            card.className = 'project-slide-card animate-scroll-in';
+            card.setAttribute('data-accent', proj.accent || 'orange');
+            
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-glow"></div>
+                    <div class="card-glass-panel">
+                        <div class="card-header-meta">
+                            <span class="project-tag">Case Study</span>
+                            <div class="project-icon-box ${proj.accent || 'orange'}"><i class="ph ${proj.icone}"></i></div>
+                        </div>
+                        <h3 class="project-card-title" ${isEditMode ? 'contenteditable="true"' : ''} data-table="projetos" data-field="titulo" data-id="${proj.id}">${escapeHtml(proj.titulo)}</h3>
+                        <p class="project-card-desc" ${isEditMode ? 'contenteditable="true"' : ''} data-table="projetos" data-field="descricao" data-id="${proj.id}">${escapeHtml(proj.descricao)}</p>
+                        <div class="project-footer">
+                            <span class="tech-badge">${escapeHtml(proj.tags || 'Soluções Web')}</span>
+                            <a href="${proj.link_projeto}" class="project-link" target="_blank"><i class="ph ph-arrow-up-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (isEditMode) {
+                const delBtn = createDeleteBtn();
+                delBtn.addEventListener('click', () => confirmDelete('projetos', proj.id));
+                card.querySelector('.card-glass-panel').appendChild(delBtn);
+                bindLiveEdits(card);
+            }
+
+            projectsTrack.appendChild(card);
+        });
+
+        // Append the Future Slide at the end
+        const futureCard = document.createElement('div');
+        futureCard.className = 'project-slide-card animate-scroll-in';
+        futureCard.setAttribute('data-accent', 'grey');
+        futureCard.innerHTML = `
+            <div class="card-inner">
+                <div class="card-glow"></div>
+                <div class="card-glass-panel future-card">
+                    <div class="radar-container">
+                        <div class="radar-circle"></div>
+                        <div class="radar-line"></div>
+                        <div class="radar-blip"></div>
+                    </div>
+                    <h3 class="project-card-title text-center">Laboratório do Futuro</h3>
+                    <p class="project-card-desc text-center">
+                        Novos sistemas web inteligentes e aplicações em modelagem 3D industrial estão atualmente na mesa de desenvolvimento.
+                    </p>
+                    <div class="project-footer justify-center">
+                        <span class="loading-text"><i class="ph ph-spinner-gap icon-spin"></i> Compilando novos projetos</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        projectsTrack.appendChild(futureCard);
+
+        // --- Render Timeline ---
+        experienceList.innerHTML = '';
+        educationList.innerHTML = '';
+
+        const experiences = data.cronograma.filter(c => c.categoria === 'Experiências');
+        const studies = data.cronograma.filter(c => c.categoria !== 'Experiências');
+
+        experiences.forEach(item => {
+            experienceList.appendChild(createTimelineCard(item));
+        });
+
+        studies.forEach(item => {
+            educationList.appendChild(createTimelineCard(item));
+        });
+
+        // --- Render Skills ---
+        skillsGrid.innerHTML = '';
+        data.habilidades.forEach(group => {
+            const card = document.createElement('div');
+            card.className = 'skill-category-card animate-scroll-in';
+            
+            let tagHTML = '';
+            group.tags.forEach((tag, idx) => {
+                tagHTML += `
+                    <span class="skill-pill">
+                        <span ${isEditMode ? 'contenteditable="true"' : ''} data-table="habilidades_tags" data-field="tag" data-id="${group.id}_${idx}">${escapeHtml(tag)}</span>
+                        ${isEditMode ? `<button class="edit-tag-remove" data-id="${group.id}_${idx}"><i class="ph ph-x"></i></button>` : ''}
+                    </span>`;
             });
 
             if (isEditMode) {
-                var addTagBtn = document.createElement('button');
-                addTagBtn.className = 'skill-tag';
-                addTagBtn.style.cursor = 'pointer';
-                addTagBtn.style.borderStyle = 'dashed';
-                addTagBtn.style.color = 'var(--text-tertiary)';
-                addTagBtn.innerHTML = '<i class="ph ph-plus"></i>';
-                addTagBtn.addEventListener('click', async function () {
-                    await supabase.from('habilidades_tags').insert({grupo_id: group.id, tag: 'Nova Tag'});
-                    showToast('Tag adicionada', 'ph-plus');
-                    fetchFromSupabase();
-                });
-                tagsList.appendChild(addTagBtn);
+                tagHTML += `
+                    <button class="skill-pill" style="border-style: dashed; cursor: pointer; color: var(--text-tertiary);" id="addTagTo_${group.id}">
+                        <i class="ph ph-plus"></i> Adicionar
+                    </button>`;
             }
 
-            groupDiv.appendChild(tagsList);
+            card.innerHTML = `
+                <h3 class="category-card-title">
+                    <i class="ph ph-cpu"></i> 
+                    <span ${isEditMode ? 'contenteditable="true"' : ''} data-table="habilidades_grupos" data-field="titulo" data-id="${group.id}">${escapeHtml(group.titulo)}</span>
+                </h3>
+                <div class="tags-container">${tagHTML}</div>
+            `;
 
             if (isEditMode) {
-                groupTitle.contentEditable = 'true';
-                groupTitle.addEventListener('blur', function () {
-                    atualizarCampoGlobal('habilidades_grupos', group.id, {titulo: groupTitle.textContent.trim()});
+                bindLiveEdits(card);
+                card.querySelector(`#addTagTo_${group.id}`).addEventListener('click', () => addTagToGroup(group.id));
+                card.querySelectorAll('.edit-tag-remove').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const compositeId = btn.getAttribute('data-id');
+                        removeTagFromGroup(compositeId);
+                    });
                 });
-                
-                var topRowGroup = document.createElement('div');
-                topRowGroup.style.display = 'flex';
-                topRowGroup.style.justifyContent = 'space-between';
-                topRowGroup.style.alignItems = 'center';
-                topRowGroup.appendChild(groupTitle);
-                
-                var delGroup = createDeleteBtn();
-                delGroup.style.position = 'relative';
-                delGroup.addEventListener('click', async () => {
-                   await confirmDeleteItem('habilidades_grupos', group.id, 'Grupo Inteiro');
-                });
-                topRowGroup.appendChild(delGroup);
-                
-                groupDiv.prepend(topRowGroup);
             }
 
-            card.appendChild(groupDiv);
+            skillsGrid.appendChild(card);
         });
 
-        container.appendChild(card);
-
-        if (isEditMode) {
-            var addBtn = createAddBtn('Adicionar Grupo');
-            addBtn.addEventListener('click', function () { addSkillGroup(section); });
-            container.appendChild(addBtn);
+        // Re-initialize layouts and scroll hooks
+        initHorizontalScroll();
+        initScrollInEffects();
+        if (window.rebindCursorInteractions) {
+            window.rebindCursorInteractions();
         }
-
-        return container;
     }
 
-    // ===== HELPER BUTTONS =====
+    function createTimelineCard(item) {
+        const card = document.createElement('div');
+        card.className = 'timeline-card animate-scroll-in';
+        card.innerHTML = `
+            <div class="timeline-header-card">
+                <span class="timeline-card-badge ${item.tipo_badge === 'secondary' ? 'badge-grey' : ''}" ${isEditMode ? 'contenteditable="true"' : ''} data-table="cronograma" data-field="badge" data-id="${item.id}">${escapeHtml(item.badge)}</span>
+                <h4 class="timeline-card-title" ${isEditMode ? 'contenteditable="true"' : ''} data-table="cronograma" data-field="titulo" data-id="${item.id}">${escapeHtml(item.titulo)}</h4>
+                <span class="timeline-card-subtitle" ${isEditMode ? 'contenteditable="true"' : ''} data-table="cronograma" data-field="subtitulo_empresa" data-id="${item.id}">${escapeHtml(item.subtitulo_empresa)}</span>
+            </div>
+            <p class="timeline-card-desc" ${isEditMode ? 'contenteditable="true"' : ''} data-table="cronograma" data-field="detalhes" data-id="${item.id}">${escapeHtml(item.detalhes)}</p>
+        `;
+
+        if (isEditMode) {
+            const delBtn = createDeleteBtn();
+            delBtn.style.top = '12px';
+            delBtn.style.right = '12px';
+            delBtn.addEventListener('click', () => confirmDelete('cronograma', item.id));
+            card.appendChild(delBtn);
+            bindLiveEdits(card);
+        }
+
+        return card;
+    }
+
     function createDeleteBtn() {
-        var btn = document.createElement('button');
+        const btn = document.createElement('button');
         btn.className = 'edit-delete-btn';
         btn.innerHTML = '<i class="ph ph-trash"></i>';
         return btn;
     }
 
-    function createAddBtn(text) {
-        var btn = document.createElement('button');
-        btn.className = 'edit-action-btn add-full';
-        btn.innerHTML = '<i class="ph ph-plus"></i> ' + escapeHtml(text);
-        return btn;
+    // ===== 10. LIVE EDIT MODE DATA BINDING =====
+    function bindLiveEdits(container) {
+        const fields = container.querySelectorAll('[contenteditable="true"]');
+        fields.forEach(field => {
+            field.addEventListener('blur', async () => {
+                const tabela = field.getAttribute('data-table');
+                const campo = field.getAttribute('data-field');
+                const id = field.getAttribute('data-id');
+                const valor = field.textContent.trim();
+
+                if (!id || (typeof id === 'string' && id.startsWith('local_'))) return;
+
+                showToast("Salvando alteração...", "ph-floppy-disk");
+
+                if (supabase) {
+                    try {
+                        let payload = {};
+                        if (tabela === 'cronograma' && campo === 'detalhes') {
+                            payload[campo] = JSON.stringify([valor]);
+                        } else {
+                            payload[campo] = valor;
+                        }
+
+                        const { error } = await supabase.from(tabela).update(payload).eq('id', id);
+                        if (error) throw error;
+                        showToast("Alteração salva no Supabase!", "ph-check-circle");
+                    } catch (e) {
+                        console.error(e);
+                        showToast("Erro ao salvar no Supabase.", "ph-warning");
+                    }
+                } else {
+                    // Update Local Mock Data
+                    updateLocalData(tabela, campo, id, valor);
+                    showToast("Alteração salva localmente!", "ph-check-circle");
+                }
+            });
+
+            field.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && field.tagName !== 'P') {
+                    e.preventDefault();
+                    field.blur();
+                }
+            });
+        });
     }
 
-    // ===== CRUD SUPABASE =====
+    function updateLocalData(tabela, campo, id, valor) {
+        if (tabela === 'projetos') {
+            const item = fallbackData.projetos.find(p => p.id == id);
+            if (item) item[campo] = valor;
+        } else if (tabela === 'cronograma') {
+            const item = fallbackData.cronograma.find(c => c.id == id);
+            if (item) item[campo] = valor;
+        } else if (tabela === 'habilidades_grupos') {
+            const item = fallbackData.habilidades.find(h => h.id == id);
+            if (item) item[campo] = valor;
+        }
+    }
 
-    async function addProjectItem(section) {
-        var result = await showModal({
-            title: 'Novo Projeto',
+    // ===== 11. MODAL SYSTEM IMPLEMENTATION =====
+    function showModal(config) {
+        let html = `
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">${escapeHtml(config.title)}</h3>
+                    <button class="modal-close" id="modalCloseBtn"><i class="ph ph-x"></i></button>
+                </div>
+                <div class="modal-body">
+        `;
+
+        config.fields.forEach(field => {
+            html += `<div class="form-group">`;
+            html += `<label class="form-label">${escapeHtml(field.label)}</label>`;
+
+            if (field.type === 'text' || field.type === 'password') {
+                html += `<input class="form-input" type="${field.type}" id="field_${field.key}" placeholder="${escapeHtml(field.placeholder || '')}" value="${escapeHtml(field.value || '')}">`;
+            } else if (field.type === 'textarea') {
+                html += `<textarea class="form-textarea" id="field_${field.key}" placeholder="${escapeHtml(field.placeholder || '')}">${escapeHtml(field.value || '')}</textarea>`;
+            } else if (field.type === 'select') {
+                html += `<select class="form-select" id="field_${field.key}">`;
+                field.options.forEach(opt => {
+                    html += `<option value="${escapeHtml(opt.value)}" ${opt.value === field.value ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`;
+                });
+                html += `</select>`;
+            } else if (field.type === 'icon-picker') {
+                html += `<div class="icon-picker" id="field_${field.key}">`;
+                AVAILABLE_ICONS.forEach(iconName => {
+                    html += `<div class="icon-option ${iconName === field.value ? 'selected' : ''}" data-icon="${iconName}"><i class="ph ${iconName}"></i></div>`;
+                });
+                html += `</div>`;
+            }
+            html += `</div>`;
+        });
+
+        html += `
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="modalCancelBtn">Cancelar</button>
+                    <button class="btn btn-primary" id="modalConfirmBtn">${escapeHtml(config.confirmText || 'Confirmar')}</button>
+                </div>
+            </div>
+        `;
+
+        modalOverlay.innerHTML = html;
+        modalOverlay.classList.add('visible');
+
+        // Picker interaction hook
+        const options = modalOverlay.querySelectorAll('.icon-option');
+        options.forEach(opt => {
+            opt.addEventListener('click', () => {
+                modalOverlay.querySelectorAll('.icon-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+            });
+        });
+
+        return new Promise((resolve) => {
+            const close = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => modalOverlay.innerHTML = '', 300);
+            };
+
+            document.getElementById('modalCloseBtn').addEventListener('click', () => { close(); resolve(null); });
+            document.getElementById('modalCancelBtn').addEventListener('click', () => { close(); resolve(null); });
+
+            document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+                let res = {};
+                config.fields.forEach(field => {
+                    if (field.type === 'icon-picker') {
+                        const sel = modalOverlay.querySelector('.icon-option.selected');
+                        res[field.key] = sel ? sel.getAttribute('data-icon') : AVAILABLE_ICONS[0];
+                    } else {
+                        const el = document.getElementById(`field_${field.key}`);
+                        res[field.key] = el ? el.value : '';
+                    }
+                });
+                close();
+                resolve(res);
+            });
+        });
+    }
+
+    // ===== 12. DYNAMIC CRUD CREATION MODALS =====
+    async function createProjectItem() {
+        const res = await showModal({
+            title: 'Novo Projeto Premium',
             fields: [
-                { key: 'title', label: 'Título', type: 'text', placeholder: 'Nome do projeto' },
-                { key: 'desc', label: 'Descrição', type: 'text', placeholder: 'Breve descrição' },
-                { key: 'icon', label: 'Ícone', type: 'icon-picker', value: 'ph-app-window' },
-                { key: 'link', label: 'Link (opcional)', type: 'text', placeholder: '/meu-projeto/' }
+                { key: 'titulo', label: 'Título', type: 'text', placeholder: 'Ex: ActiveGym' },
+                { key: 'desc', label: 'Descrição Completa', type: 'textarea', placeholder: 'Explique o projeto...' },
+                { key: 'icone', label: 'Ícone da Ficha', type: 'icon-picker', value: 'ph-app-window' },
+                { key: 'link', label: 'Link do Projeto', type: 'text', placeholder: '#' }
             ],
             confirmText: 'Adicionar'
         });
 
-        if (result && result.title) {
-            const { error } = await supabase.from('projetos').insert({
-                titulo: result.title,
-                descricao: result.desc || '',
-                icone: result.icon || 'ph-app-window',
-                link_projeto: result.link || '#'
-            });
-            if(!error) {
-                showToast('Projeto adicionado!', 'ph-check-circle');
-                fetchFromSupabase();
+        if (res && res.titulo) {
+            if (supabase) {
+                const { error } = await supabase.from('projetos').insert({
+                    titulo: res.titulo,
+                    descricao: res.desc || '',
+                    icone: res.icone || 'ph-app-window',
+                    link_projeto: res.link || '#'
+                });
+                if (!error) fetchData();
             } else {
-                showToast('Falha ao adicionar.', 'ph-warning');
+                fallbackData.projetos.push({
+                    id: Date.now(),
+                    titulo: res.titulo,
+                    descricao: res.desc || '',
+                    icone: res.icone || 'ph-app-window',
+                    link_projeto: res.link || '#',
+                    accent: 'cyan',
+                    tags: 'Frontend, Firebase'
+                });
+                renderData(fallbackData);
             }
         }
     }
 
-    async function addTimelineItem(section) {
-        var result = await showModal({
-            title: 'Novo Item (' + section.categoriaRef + ')',
+    async function createTimelineItem() {
+        const res = await showModal({
+            title: 'Novo Item de Trajetória',
             fields: [
-                { key: 'badge', label: 'Badge', type: 'text', placeholder: 'Ex: Atual, Anterior, Em Andamento' },
                 {
-                    key: 'badgeType', label: 'Tipo do Badge', type: 'select', value: 'primary',
-                    options: [
-                        { value: 'primary', label: 'Destaque (laranja)' },
-                        { value: 'secondary', label: 'Secundário (cinza)' }
-                    ]
+                    key: 'categoria', label: 'Categoria', type: 'select', value: 'Experiências',
+                    options: [{ value: 'Experiências', label: 'Experiência' }, { value: 'Estudos', label: 'Estudo/Formação' }]
                 },
-                { key: 'title', label: 'Título', type: 'text', placeholder: 'Título do item' },
-                { key: 'company', label: 'Subtítulo / Empresa', type: 'text', placeholder: 'Descrição breve' },
-                { key: 'body', label: 'Detalhes', type: 'textarea', placeholder: 'Texto com mais detalhes...' }
+                { key: 'badge', label: 'Badge (Tag)', type: 'text', placeholder: 'Ex: Atual, Concluído' },
+                {
+                    key: 'tipo_badge', label: 'Destacar Badge?', type: 'select', value: 'primary',
+                    options: [{ value: 'primary', label: 'Sim (Neon)' }, { value: 'secondary', label: 'Não (Cinza)' }]
+                },
+                { key: 'titulo', label: 'Título Principal', type: 'text', placeholder: 'Ex: Analista de Sistemas' },
+                { key: 'subtitulo', label: 'Subtítulo / Instituição', type: 'text', placeholder: 'Ex: Mars Wrigley' },
+                { key: 'detalhes', label: 'Detalhes Descritivos', type: 'textarea', placeholder: 'Atribuições...' }
             ],
             confirmText: 'Adicionar'
         });
 
-        if (result && result.title) {
-            const { error } = await supabase.from('cronograma').insert({
-                categoria: section.categoriaRef,
-                badge: result.badge || 'Novo',
-                tipo_badge: result.badgeType || 'primary',
-                titulo: result.title,
-                subtitulo_empresa: result.company || '',
-                detalhes: JSON.stringify([result.body || ''])
-            });
-            if(!error) {
-                showToast('Item adicionado!', 'ph-check-circle');
-                fetchFromSupabase();
+        if (res && res.titulo) {
+            if (supabase) {
+                const { error } = await supabase.from('cronograma').insert({
+                    categoria: res.categoria,
+                    badge: res.badge || '',
+                    tipo_badge: res.tipo_badge,
+                    titulo: res.titulo,
+                    subtitulo_empresa: res.subtitulo,
+                    detalhes: JSON.stringify([res.detalhes || ''])
+                });
+                if (!error) fetchData();
+            } else {
+                fallbackData.cronograma.push({
+                    id: Date.now(),
+                    categoria: res.categoria,
+                    badge: res.badge || '',
+                    tipo_badge: res.tipo_badge,
+                    titulo: res.titulo,
+                    subtitulo_empresa: res.subtitulo,
+                    detalhes: res.detalhes || ''
+                });
+                renderData(fallbackData);
             }
         }
     }
 
-    async function addSkillGroup(section) {
-        var result = await showModal({
+    async function createSkillGroup() {
+        const res = await showModal({
             title: 'Novo Grupo de Habilidades',
             fields: [
-                { key: 'title', label: 'Título do Grupo', type: 'text', placeholder: 'Ex: DevOps, Mobile' },
-                { key: 'tags', label: 'Tags (separadas por vírgula)', type: 'text', placeholder: 'Docker, Kubernetes, AWS' }
+                { key: 'titulo', label: 'Nome da Categoria', type: 'text', placeholder: 'Ex: Banco de Dados' }
+            ],
+            confirmText: 'Criar'
+        });
+
+        if (res && res.titulo) {
+            if (supabase) {
+                const { error } = await supabase.from('habilidades_grupos').insert({
+                    titulo: res.titulo
+                });
+                if (!error) fetchData();
+            } else {
+                fallbackData.habilidades.push({
+                    id: Date.now(),
+                    titulo: res.titulo,
+                    tags: ['Nova Habilidade']
+                });
+                renderData(fallbackData);
+            }
+        }
+    }
+
+    async function addTagToGroup(grupoId) {
+        const res = await showModal({
+            title: 'Adicionar Tag de Habilidade',
+            fields: [
+                { key: 'tag', label: 'Nome da Habilidade', type: 'text', placeholder: 'Ex: Git' }
             ],
             confirmText: 'Adicionar'
         });
 
-        if (result && result.title) {
-            const { data: gData, error: gError } = await supabase.from('habilidades_grupos').insert({titulo: result.title}).select();
-            if(!gError && gData && gData.length > 0) {
-                const arr = result.tags ? result.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
-                if(arr.length > 0) {
-                    const tagPayload = arr.map(t => ({grupo_id: gData[0].id, tag: t}));
-                    await supabase.from('habilidades_tags').insert(tagPayload);
-                }
-                showToast('Grupo adicionado!', 'ph-check-circle');
-                fetchFromSupabase();
+        if (res && res.tag) {
+            if (supabase) {
+                const { error } = await supabase.from('habilidades_tags').insert({
+                    grupo_id: grupoId,
+                    tag: res.tag
+                });
+                if (!error) fetchData();
+            } else {
+                const group = fallbackData.habilidades.find(h => h.id == grupoId);
+                if (group) group.tags.push(res.tag);
+                renderData(fallbackData);
             }
         }
     }
 
-    async function confirmDeleteItem(tabela, itemId, label) {
-        var result = await showModal({
-            title: 'Confirmar Exclusão',
-            fields: [],
-            confirmText: 'Excluir ' + label,
-            cancelText: 'Cancelar',
-            dangerConfirm: true
+    async function removeTagFromGroup(compositeId) {
+        const parts = compositeId.split('_');
+        const grupoId = parts[0];
+        const idx = parts[1];
+
+        if (supabase) {
+            showToast("Buscando e apagando tag...", "ph-trash");
+            try {
+                // Fetch group tags, find matching index
+                const { data: tags } = await supabase.from('habilidades_tags').select('*').eq('grupo_id', grupoId).order('id');
+                if (tags && tags[idx]) {
+                    await supabase.from('habilidades_tags').delete().eq('id', tags[idx].id);
+                    fetchData();
+                }
+            } catch(e) {}
+        } else {
+            const group = fallbackData.habilidades.find(h => h.id == grupoId);
+            if (group && group.tags[idx]) {
+                group.tags.splice(idx, 1);
+                renderData(fallbackData);
+            }
+        }
+    }
+
+    async function confirmDelete(tabela, id) {
+        const res = await showModal({
+            title: 'Excluir Item',
+            fields: [
+                { key: 'info', label: 'Deseja realmente excluir este item permanentemente?', type: 'select', value: 'não', options: [{value: 'não', label: 'Não'}, {value: 'sim', label: 'Sim (Apagar)'}] }
+            ],
+            confirmText: 'Confirmar'
         });
 
-        if (result) {
-            const { error } = await supabase.from(tabela).delete().eq('id', itemId);
-            if(!error) {
-                showToast(label + ' removido(a).', 'ph-trash');
-                fetchFromSupabase();
+        if (res && res.info === 'sim') {
+            showToast("Excluindo item...", "ph-trash");
+            if (supabase) {
+                try {
+                    const { error } = await supabase.from(tabela).delete().eq('id', id);
+                    if (error) throw error;
+                    fetchData();
+                } catch(e) {
+                    showToast("Erro ao excluir do Supabase", "ph-warning");
+                }
+            } else {
+                if (tabela === 'projetos') fallbackData.projetos = fallbackData.projetos.filter(p => p.id != id);
+                if (tabela === 'cronograma') fallbackData.cronograma = fallbackData.cronograma.filter(c => c.id != id);
+                renderData(fallbackData);
+                showToast("Item excluído localmente", "ph-trash");
             }
         }
     }
 
-    // ===== EDIT MODE =====
-    async function toggleEditMode() {
-        if (!isEditMode) {
-            var result = await showModal({
-                title: 'Autenticação Admin',
-                fields: [
-                    { key: 'password', label: 'Senha', type: 'password', placeholder: 'Digite a senha...' }
-                ],
-                confirmText: 'Entrar',
-                cancelText: 'Cancelar'
-            });
+    // ===== 13. DRAWER ADMINISTRATIVE EVENT HOOKS =====
+    function setupDrawerEvents() {
+        const openDrawer = () => adminDrawer.classList.add('visible');
+        const closeDrawer = () => adminDrawer.classList.remove('visible');
 
-            if (result && result.password === PASSWORD) {
-                enterEditMode();
-            } else if (result) {
-                showToast('Senha incorreta.', 'ph-lock');
+        adminToggleBtn.addEventListener('click', openDrawer);
+        drawerCloseBtn.addEventListener('click', closeDrawer);
+        drawerOverlay.addEventListener('click', closeDrawer);
+
+        // Save Supabase Credentials
+        saveDbCredentialsBtn.addEventListener('click', () => {
+            const url = supabaseUrlInput.value.trim();
+            const key = supabaseKeyInput.value.trim();
+
+            if (url && key) {
+                localStorage.setItem(STORAGE_KEY_CREDS, JSON.stringify({ url, key }));
+                supabase = window.supabase.createClient(url, key);
+                showToast("Credenciais conectadas!", "ph-check-circle");
+                fetchData();
+                closeDrawer();
+            } else {
+                localStorage.removeItem(STORAGE_KEY_CREDS);
+                supabase = null;
+                showToast("Credenciais limpas. Modo offline.", "ph-info");
+                fetchData();
+                closeDrawer();
             }
-        } else {
-            exitEditMode();
-        }
+        });
+
+        // Login to Live Visual Editor
+        enterAdminModeBtn.addEventListener('click', () => {
+            const pass = adminPasswordInput.value.trim();
+            if (pass === PASSWORD_ADMIN) {
+                isEditMode = true;
+                document.body.classList.add('edit-mode-active');
+                adminControlsContainer.classList.remove('hide-initially');
+                enterAdminModeBtn.style.display = 'none';
+                
+                showToast("Modo editor ativado! Altere itens diretamente na tela.", "ph-pencil-simple");
+                
+                // Re-render to load contenteditable targets and buttons
+                if (supabase) {
+                    fetchData();
+                } else {
+                    renderData(fallbackData);
+                }
+                closeDrawer();
+            } else {
+                showToast("Senha incorreta.", "ph-warning");
+            }
+        });
+
+        // Exit Visual Editor
+        exitAdminModeBtn.addEventListener('click', () => {
+            isEditMode = false;
+            document.body.classList.remove('edit-mode-active');
+            adminControlsContainer.classList.add('hide-initially');
+            enterAdminModeBtn.style.display = 'flex';
+            adminPasswordInput.value = '';
+            
+            showToast("Modo editor desativado.", "ph-info");
+            
+            if (supabase) {
+                fetchData();
+            } else {
+                renderData(fallbackData);
+            }
+            closeDrawer();
+        });
+
+        // Drawer Add Item Clicks
+        addProjectBtn.addEventListener('click', () => { closeDrawer(); createProjectItem(); });
+        addTimelineBtn.addEventListener('click', () => { closeDrawer(); createTimelineItem(); });
+        addSkillGroupBtn.addEventListener('click', () => { closeDrawer(); createSkillGroup(); });
     }
 
-    function enterEditMode() {
-        isEditMode = true;
-        document.body.classList.add('edit-mode-active');
-        customizeBtn.classList.add('active');
-        adminToolbar.classList.add('visible');
-        render();
-        showToast('Modo admin ativado!', 'ph-pencil-simple');
+    // ===== 14. DYNAMIC NOTIFICATIONS (TOASTS) =====
+    function showToast(message, iconName = 'ph-info') {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="ph ${iconName}"></i> ${escapeHtml(message)}`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('leaving');
+            setTimeout(() => toast.remove(), 400);
+        }, 3500);
     }
 
-    function exitEditMode() {
-        isEditMode = false;
-        document.body.classList.remove('edit-mode-active');
-        customizeBtn.classList.remove('active');
-        adminToolbar.classList.remove('visible');
-        showToast('Saída do Modo Admin', 'ph-floppy-disk');
-        fetchFromSupabase();
-    }
-
-    // ===== EVENT LISTENERS =====
-    customizeBtn.addEventListener('click', toggleEditMode);
-    
-    // Opcional: remover "nova seção" se sua modelagem não suporta novas seções dinâmicas estruturais globalmente.
-    if(addSectionBtn) addSectionBtn.style.display = 'none'; 
-    if(resetDataBtn) resetDataBtn.style.display = 'none';
-
-    saveExitBtn.addEventListener('click', exitEditMode);
-
-    // ===== INITIALIZATION =====
-    function init() {
-        fetchFromSupabase();
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+    function escapeHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
     }
 
 })();
