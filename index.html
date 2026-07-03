@@ -3,414 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bhsti.online | Portfólio de Sistemas Premium</title>
-    <meta name="description" content="Portfólio de sistemas e aplicações web desenvolvidos por bhsti.online com estética moderna ao extremo e animações cinematográficas.">
-    <meta name="theme-color" content="#0a0a0c">
+    <title>Bruno Henrique | Portfólio</title>
+    <meta name="description" content="Portfólio de Bruno Henrique Lopes de Souza, estudante de Análise e Desenvolvimento de Sistemas com projetos, estudos e competências em tecnologia.">
+    <meta name="theme-color" content="#080808">
 
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
-    <!-- Fonts: Space Grotesk & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Phosphor Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <!-- Custom Premium Cursor -->
-    <div class="custom-cursor" id="customCursor"></div>
-    <div class="custom-cursor-follower" id="customCursorFollower"></div>
-
-    <!-- Cosmic Grid & Spotlight Background -->
-    <div class="background-spotlight"></div>
-    <div class="background-grid"></div>
-
-    <!-- HEADER / NAVIGATION -->
-    <header class="navbar" id="navbar">
-        <div class="navbar-container">
-            <a href="#" class="nav-logo" id="navLogo">bhsti<span class="dot">.</span>online</a>
-            <nav class="nav-links">
-                <a href="#projetos-section" class="nav-item">Projetos</a>
-                <a href="#experiencia-section" class="nav-item">Experiência</a>
-                <a href="#habilidades-section" class="nav-item">Habilidades</a>
-            </nav>
-            <div class="nav-actions">
-                <button class="admin-toggle-btn" id="adminToggleBtn" title="Configurações e Admin">
-                    <i class="ph ph-gear"></i>
-                </button>
-            </div>
-        </div>
+    <header class="site-header">
+        <a class="brand" href="#top" aria-label="Início">bhsti.online<span>.</span></a>
+        <nav class="site-nav" aria-label="Navegação principal">
+            <a href="#projetos">Projetos</a>
+            <a href="#trajetoria">Trajetória</a>
+            <a href="#competencias">Competências</a>
+            <a href="#contato">Contato</a>
+        </nav>
     </header>
 
-    <!-- MAIN SCROLLABLE CONTAINER (LENIS) -->
-    <div class="scroll-content">
-
-        <!-- HERO SECTION -->
-        <section class="hero" id="hero">
-            <canvas id="heroCanvas" class="hero-canvas"></canvas>
-            <div class="hero-container container">
-                <div class="hero-badge animate-fade">
-                    <span class="pulse-dot"></span>
-                    Disponível para novos projetos
-                </div>
-                <h1 class="hero-title">
-                    <span class="title-line"><span class="word-reveal">CONSTRUINDO</span> <span class="word-reveal text-gradient">O FUTURO</span></span>
-                    <span class="title-line"><span class="word-reveal">DAS EXPERIÊNCIAS</span></span>
-                    <span class="title-line"><span class="word-reveal text-glow">DIGITAIS</span></span>
-                </h1>
-                <p class="hero-subtitle animate-fade">
-                    Sistemas Web, Mobile & Modelagem Industrial com estética moderna ao extremo e performance inigualável.
+    <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+            <img class="hero-image" src="assets/hero-workspace.png" alt="Mesa escura com notebook, anotações e elementos de projeto em laranja">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <p class="eyebrow">Portfólio de sistemas e estudos</p>
+                <h1 id="hero-title">Bruno Henrique Lopes de Souza</h1>
+                <p class="hero-copy">
+                    Estudante de Análise e Desenvolvimento de Sistemas, com base prática em processos,
+                    melhoria contínua e desenvolvimento de aplicações.
                 </p>
-                <div class="hero-actions animate-fade">
-                    <a href="#projetos-section" class="btn-magnetic btn-primary-premium">
-                        <span>Ver Projetos <i class="ph ph-arrow-down"></i></span>
-                    </a>
-                    <a href="#experiencia-section" class="btn-magnetic btn-secondary-premium">
-                        <span>Explorar Trajetória</span>
-                    </a>
-                </div>
-            </div>
-            <div class="scroll-indicator animate-fade">
-                <span class="mouse-icon">
-                    <span class="wheel"></span>
-                </span>
-                <span class="scroll-text">Desça para explorar</span>
-            </div>
-        </section>
-
-        <!-- HORIZONTAL PROJECTS SECTION -->
-        <section class="projects-section-container" id="projetos-section">
-            <div class="projects-pin-wrapper">
-                <div class="projects-header container">
-                    <div class="section-label"><i class="ph ph-squares-four"></i> Portfólio de Elite</div>
-                    <h2 class="section-main-title">Sistemas e Projetos <span>Destaque</span></h2>
-                </div>
-                
-                <div class="projects-horizontal-track-wrapper">
-                    <div class="projects-horizontal-track" id="projectsTrack">
-                        <!-- Project Cards Rendered Dynamically -->
-                        
-                        <!-- CARD 1: Gym System -->
-                        <div class="project-slide-card" data-accent="orange">
-                            <div class="card-inner">
-                                <div class="card-glow"></div>
-                                <div class="card-glass-panel">
-                                    <div class="card-header-meta">
-                                        <span class="project-tag">ActiveGym / IronPulse</span>
-                                        <div class="project-icon-box orange"><i class="ph ph-barbell"></i></div>
-                                    </div>
-                                    <h3 class="project-card-title">Sistema de Gestão de Academia</h3>
-                                    <p class="project-card-desc">
-                                        Plataforma robusta para gestão de matrículas, treinos personalizados, agendamento de aulas e acompanhamento físico com dashboards analíticos em tempo real.
-                                    </p>
-                                    <div class="project-features">
-                                        <span><i class="ph ph-check"></i> Controle de Membros</span>
-                                        <span><i class="ph ph-check"></i> Treinos Dinâmicos</span>
-                                        <span><i class="ph ph-check"></i> Dashboards de Faturamento</span>
-                                    </div>
-                                    <div class="project-footer">
-                                        <span class="tech-badge">Flutter</span>
-                                        <span class="tech-badge">Firebase</span>
-                                        <span class="tech-badge">Web & Mobile</span>
-                                        <a href="#" class="project-link"><i class="ph ph-arrow-up-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 2: ERP System -->
-                        <div class="project-slide-card" data-accent="cyan">
-                            <div class="card-inner">
-                                <div class="card-glow"></div>
-                                <div class="card-glass-panel">
-                                    <div class="card-header-meta">
-                                        <span class="project-tag">NexusERP</span>
-                                        <div class="project-icon-box cyan"><i class="ph ph-storefront"></i></div>
-                                    </div>
-                                    <h3 class="project-card-title">Sistema Empresarial & Frente de Caixa</h3>
-                                    <p class="project-card-desc">
-                                        Gestão completa de vendas, estoque integrado com alertas automatizados, contas a pagar/receber e emissão de notas com interface PDV ultrarrápida.
-                                    </p>
-                                    <div class="project-features">
-                                        <span><i class="ph ph-check"></i> Fluxo de Caixa Real</span>
-                                        <span><i class="ph ph-check"></i> Frente de Caixa PDV</span>
-                                        <span><i class="ph ph-check"></i> Relatórios Inteligentes</span>
-                                    </div>
-                                    <div class="project-footer">
-                                        <span class="tech-badge">HTML5/JS</span>
-                                        <span class="tech-badge">Supabase</span>
-                                        <span class="tech-badge">TailwindCSS</span>
-                                        <a href="#" class="project-link"><i class="ph ph-arrow-up-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 3: Brainstorming Map -->
-                        <div class="project-slide-card" data-accent="purple">
-                            <div class="card-inner">
-                                <div class="card-glow"></div>
-                                <div class="card-glass-panel">
-                                    <div class="card-header-meta">
-                                        <span class="project-tag">MindFlow</span>
-                                        <div class="project-icon-box purple"><i class="ph ph-brain"></i></div>
-                                    </div>
-                                    <h3 class="project-card-title">Mapeamento e Brainstorm Sandbox</h3>
-                                    <p class="project-card-desc">
-                                        Ambiente criativo infinito em tela infinita (Infinite Canvas) para mapeamento mental, encadeamento de notas rápidas e geração de conexões de ideias em equipe.
-                                    </p>
-                                    <div class="project-features">
-                                        <span><i class="ph ph-check"></i> Infinite Canvas</span>
-                                        <span><i class="ph ph-check"></i> Nós e Fluxogramas</span>
-                                        <span><i class="ph ph-check"></i> Lousa Compartilhada</span>
-                                    </div>
-                                    <div class="project-footer">
-                                        <span class="tech-badge">React</span>
-                                        <span class="tech-badge">NodeJS</span>
-                                        <span class="tech-badge">Canvas API</span>
-                                        <a href="#" class="project-link"><i class="ph ph-arrow-up-right"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- CARD 4: Future / Under construction -->
-                        <div class="project-slide-card" data-accent="grey">
-                            <div class="card-inner">
-                                <div class="card-glow"></div>
-                                <div class="card-glass-panel future-card">
-                                    <div class="radar-container">
-                                        <div class="radar-circle"></div>
-                                        <div class="radar-line"></div>
-                                        <div class="radar-blip"></div>
-                                    </div>
-                                    <h3 class="project-card-title text-center">Laboratório do Futuro</h3>
-                                    <p class="project-card-desc text-center">
-                                        Novos sistemas web inteligentes e aplicações em modelagem 3D industrial estão atualmente na mesa de desenvolvimento.
-                                    </p>
-                                    <div class="project-footer justify-center">
-                                        <span class="loading-text"><i class="ph ph-spinner-gap icon-spin"></i> Compilando novos projetos</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                <div class="hero-meta" aria-label="Resumo profissional">
+                    <span>Jacareí, SP</span>
+                    <span>ADS</span>
+                    <span>Java, Python, C/C++</span>
                 </div>
             </div>
         </section>
 
-        <!-- TIMELINE SECTION (CRONOGRAMA) -->
-        <section class="timeline-section" id="experiencia-section">
-            <div class="container">
-                <div class="section-header-centered">
-                    <div class="section-label justify-center"><i class="ph ph-briefcase"></i> Trajetória Profissional</div>
-                    <h2 class="section-main-title text-center">Experiência, Estudos e <span>Formação</span></h2>
-                </div>
-
-                <div class="timeline-grid-wrapper">
-                    <!-- Column 1: Experiências -->
-                    <div class="timeline-column">
-                        <h3 class="column-title"><i class="ph ph-briefcase"></i> Experiências</h3>
-                        <div class="timeline-list" id="experienceList">
-                            <!-- Rendered Dynamically -->
-                            <div class="timeline-card animate-scroll-in">
-                                <div class="timeline-header-card">
-                                    <span class="timeline-card-badge">Atual</span>
-                                    <h4 class="timeline-card-title">Desenvolvedor Flutter & Firebase</h4>
-                                    <span class="timeline-card-subtitle">Sistemas Web & Mobile</span>
-                                </div>
-                                <p class="timeline-card-desc">
-                                    Criação de soluções escaláveis utilizando Flutter para o frontend e Firebase para infraestrutura serverless, autenticação e banco de dados em tempo real.
-                                </p>
-                            </div>
-                            <div class="timeline-card animate-scroll-in">
-                                <div class="timeline-header-card">
-                                    <span class="timeline-card-badge badge-grey">Anterior</span>
-                                    <h4 class="timeline-card-title">Profissional Industrial</h4>
-                                    <span class="timeline-card-subtitle">Mars Wrigley</span>
-                                </div>
-                                <p class="timeline-card-desc">
-                                    Atuação em linhas de produção de alta performance e projetos Kaizen. Otimização de processos produtivos e implementação de melhorias contínuas.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Column 2: Estudos e Formação -->
-                    <div class="timeline-column">
-                        <h3 class="column-title"><i class="ph ph-graduation-cap"></i> Estudos & Formação</h3>
-                        <div class="timeline-list" id="educationList">
-                            <!-- Rendered Dynamically -->
-                            <div class="timeline-card animate-scroll-in">
-                                <div class="timeline-header-card">
-                                    <span class="timeline-card-badge">Estudos</span>
-                                    <h4 class="timeline-card-title">Modelagem 3D & Desenhos Técnicos</h4>
-                                    <span class="timeline-card-subtitle">Onshape, CATIA & AutoCAD</span>
-                                </div>
-                                <p class="timeline-card-desc">
-                                    Desenvolvimento de peças industriais (como raspadores) utilizando softwares CAD avançados para modelagem tridimensional e detalhamento técnico.
-                                </p>
-                            </div>
-                            <div class="timeline-card animate-scroll-in">
-                                <div class="timeline-header-card">
-                                    <span class="timeline-card-badge">Graduação</span>
-                                    <h4 class="timeline-card-title">Análise e Desenvolvimento de Sistemas</h4>
-                                    <span class="timeline-card-subtitle">Ensino Superior</span>
-                                </div>
-                                <p class="timeline-card-desc">
-                                    Foco em engenharia de software estruturada, modelagem de banco de dados relacionais e não relacionais, metodologias ágeis de desenvolvimento.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+        <section class="intro-section">
+            <div class="content-grid">
+                <p class="section-kicker">Perfil</p>
+                <div>
+                    <h2>Aprendizado rápido, visão de processo e vontade de construir.</h2>
+                    <p>
+                        Busco minha primeira oportunidade na área de tecnologia. Trago experiência em ambiente
+                        produtivo, trabalho em equipe, atenção a detalhes e prática com melhoria contínua, unindo
+                        essa bagagem aos estudos em desenvolvimento de sistemas.
+                    </p>
                 </div>
             </div>
         </section>
 
-        <!-- SKILLS SECTION -->
-        <section class="skills-section-container" id="habilidades-section">
-            <div class="container">
-                <div class="section-header-centered">
-                    <div class="section-label justify-center"><i class="ph ph-lightning"></i> Arsenal Técnico</div>
-                    <h2 class="section-main-title text-center">Minhas <span>Habilidades</span></h2>
-                </div>
+        <section class="section-band" id="projetos">
+            <div class="section-heading">
+                <p class="section-kicker">Projetos</p>
+                <h2>Espaço para sistemas, estudos práticos e aplicações.</h2>
+            </div>
 
-                <div class="skills-categories-grid" id="skillsGrid">
-                    <!-- Rendered Dynamically -->
-                    <div class="skill-category-card animate-scroll-in">
-                        <h3 class="category-card-title"><i class="ph ph-code"></i> Frontend</h3>
-                        <div class="tags-container">
-                            <span class="skill-pill">Flutter</span>
-                            <span class="skill-pill">HTML5</span>
-                            <span class="skill-pill">CSS3</span>
-                            <span class="skill-pill">JavaScript</span>
-                        </div>
-                    </div>
-                    <div class="skill-category-card animate-scroll-in">
-                        <h3 class="category-card-title"><i class="ph ph-database"></i> Backend & Ferramentas</h3>
-                        <div class="tags-container">
-                            <span class="skill-pill">Firebase</span>
-                            <span class="skill-pill">Supabase</span>
-                            <span class="skill-pill">Git & GitHub</span>
-                            <span class="skill-pill">NodeJS</span>
-                        </div>
-                    </div>
-                    <div class="skill-category-card animate-scroll-in">
-                        <h3 class="category-card-title"><i class="ph ph-cpu"></i> Engenharia & 3D</h3>
-                        <div class="tags-container">
-                            <span class="skill-pill">Onshape</span>
-                            <span class="skill-pill">CATIA</span>
-                            <span class="skill-pill">AutoCAD</span>
-                            <span class="skill-pill">Desenho Técnico</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="projects-grid">
+                <article class="project-card">
+                    <p class="project-year">2026</p>
+                    <h3>PDV Mercadinho</h3>
+                    <p>
+                        Frente de caixa e gestão para pequenos mercados, com foco em fluxo de venda,
+                        organização de produtos e rotina operacional.
+                    </p>
+                    <ul class="project-tags" aria-label="Tecnologias e foco">
+                        <li>Gestão</li>
+                        <li>PDV</li>
+                        <li>Aplicação web</li>
+                    </ul>
+                    <a class="text-link" href="pdv-mercadinho/">Abrir projeto</a>
+                </article>
+
+                <article class="project-card">
+                    <p class="project-year">2026</p>
+                    <h3>Terradata</h3>
+                    <p>
+                        Sistema para organização de dados territoriais e apoio à gestão de informações
+                        operacionais em formato digital.
+                    </p>
+                    <ul class="project-tags" aria-label="Tecnologias e foco">
+                        <li>Dados</li>
+                        <li>Gestão territorial</li>
+                        <li>Web</li>
+                    </ul>
+                    <p class="project-note">Área reservada para evolução do estudo.</p>
+                </article>
+
+                <article class="project-card">
+                    <p class="project-year">2026</p>
+                    <h3>Portfólio bhsti.online</h3>
+                    <p>
+                        Site pessoal estruturado para documentar projetos, estudos, competências e evolução
+                        profissional de forma cronológica.
+                    </p>
+                    <ul class="project-tags" aria-label="Tecnologias e foco">
+                        <li>HTML</li>
+                        <li>CSS</li>
+                        <li>JavaScript</li>
+                    </ul>
+                    <p class="project-note">Base atual deste portfólio.</p>
+                </article>
             </div>
         </section>
 
-        <!-- PREMIUM FOOTER -->
-        <footer class="footer-premium">
-            <div class="container footer-content">
-                <div class="footer-brand">
-                    <span class="footer-logo">bhsti<span class="dot">.</span>online</span>
-                    <p>Elevando ideias ao estado da arte digital.</p>
-                </div>
-                <div class="footer-divider"></div>
-                <div class="footer-bottom">
-                    <p class="footer-copy" id="footerText">© 2026 bhsti.online. Todos os direitos reservados.</p>
-                    <div class="footer-socials">
-                        <a href="https://github.com" target="_blank" title="GitHub"><i class="ph ph-github-logo"></i></a>
-                        <a href="https://linkedin.com" target="_blank" title="LinkedIn"><i class="ph ph-linkedin-logo"></i></a>
-                        <a href="mailto:contato@bhsti.online" title="E-mail"><i class="ph ph-envelope"></i></a>
-                    </div>
-                </div>
+        <section class="section-band timeline-band" id="trajetoria">
+            <div class="section-heading">
+                <p class="section-kicker">Trajetória</p>
+                <h2>Formação, trabalho e estudos em ordem cronológica.</h2>
             </div>
-        </footer>
 
-    </div>
+            <ol class="timeline">
+                <li>
+                    <span class="timeline-date">2016 - 2018</span>
+                    <div>
+                        <h3>Administração integrada ao Ensino Médio</h3>
+                        <p>IFSP - Instituto Federal de São Paulo. Base em organização, rotina administrativa e formação técnica.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="timeline-date">2020 - 2023</span>
+                    <div>
+                        <h3>Operador de Produção</h3>
+                        <p>Vet&CIA. Atuação em operação, apoio à liderança, responsabilidades com equipe e acompanhamento de rotina produtiva.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="timeline-date">2022 - 2025</span>
+                    <div>
+                        <h3>Análise e Desenvolvimento de Sistemas</h3>
+                        <p>Universidade Anhembi Morumbi - SJC. Estudos em programação, desenvolvimento de sistemas, banco de dados e metodologia ágil.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="timeline-date">2023 - atual</span>
+                    <div>
+                        <h3>Auxiliar de Produção</h3>
+                        <p>MARS Brasil. Experiência com rotina produtiva, SAP GUI, 5S, Kaizen, melhoria contínua e relações humanas no trabalho.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="timeline-date">Atual</span>
+                    <div>
+                        <h3>Projetos e estudos em tecnologia</h3>
+                        <p>Desenvolvimento de portfólio, aplicações web e aprofundamento em Java, Python, C/C++ e fundamentos de sistemas.</p>
+                    </div>
+                </li>
+            </ol>
+        </section>
 
-    <!-- SETTINGS & ADMIN DRAWER (GLASS PANELS) -->
-    <div class="admin-drawer" id="adminDrawer">
-        <div class="drawer-overlay" id="drawerOverlay"></div>
-        <div class="drawer-panel">
-            <div class="drawer-header">
-                <h3><i class="ph ph-gear"></i> Painel Administrativo</h3>
-                <button class="drawer-close-btn" id="drawerCloseBtn"><i class="ph ph-x"></i></button>
+        <section class="section-band" id="competencias">
+            <div class="section-heading">
+                <p class="section-kicker">Competências</p>
+                <h2>Conhecimentos técnicos e habilidades profissionais.</h2>
             </div>
-            
-            <div class="drawer-body">
-                <!-- Credentials Section -->
-                <div class="drawer-section">
-                    <h4 class="section-subtitle-drawer">Conexão do Banco (Supabase)</h4>
-                    <div class="form-group">
-                        <label class="form-label-drawer">URL do Supabase</label>
-                        <input type="text" id="supabaseUrlInput" class="form-input-drawer" placeholder="https://xxxx.supabase.co">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label-drawer">Chave Anon/Client Key</label>
-                        <input type="password" id="supabaseKeyInput" class="form-input-drawer" placeholder="Chave anônima pública...">
-                    </div>
-                    <button class="btn-drawer-action" id="saveDbCredentialsBtn"><i class="ph ph-floppy-disk"></i> Salvar Credenciais</button>
-                </div>
 
-                <!-- Admin Access -->
-                <div class="drawer-section">
-                    <h4 class="section-subtitle-drawer">Acesso Modo Editor Visual</h4>
-                    <div class="form-group">
-                        <label class="form-label-drawer">Senha Administrativa</label>
-                        <input type="password" id="adminPasswordInput" class="form-input-drawer" placeholder="Digite a senha...">
-                    </div>
-                    <button class="btn-drawer-action btn-accent-drawer" id="enterAdminModeBtn"><i class="ph ph-pencil-simple"></i> Ativar Modo Editor</button>
-                </div>
+            <div class="skills-layout">
+                <article class="skill-group">
+                    <i class="ph ph-code" aria-hidden="true"></i>
+                    <h3>Programação</h3>
+                    <p>Java, Python, C/C++, HTML, CSS e JavaScript.</p>
+                </article>
+                <article class="skill-group">
+                    <i class="ph ph-kanban" aria-hidden="true"></i>
+                    <h3>Processos</h3>
+                    <p>SAP GUI, 5S, Kaizen, análise e resolução de problemas.</p>
+                </article>
+                <article class="skill-group">
+                    <i class="ph ph-users-three" aria-hidden="true"></i>
+                    <h3>Perfil profissional</h3>
+                    <p>Trabalho em equipe, boa comunicação, aprendizado rápido e atenção a detalhes.</p>
+                </article>
+                <article class="skill-group">
+                    <i class="ph ph-translate" aria-hidden="true"></i>
+                    <h3>Inglês</h3>
+                    <p>Leitura, escrita e comunicação em desenvolvimento.</p>
+                </article>
+            </div>
+        </section>
+    </main>
 
-                <!-- Admin Controls (Only visible when logged in) -->
-                <div class="drawer-section hide-initially" id="adminControlsContainer">
-                    <div class="admin-badge-active"><i class="ph ph-check-circle"></i> MODO EDITOR ATIVO</div>
-                    
-                    <h4 class="section-subtitle-drawer margin-top">Gerenciamento de Conteúdo</h4>
-                    <div class="admin-action-row">
-                        <button class="btn-admin-control" id="addProjectBtn"><i class="ph ph-plus"></i> Novo Projeto</button>
-                        <button class="btn-admin-control" id="addTimelineBtn"><i class="ph ph-plus"></i> Novo Cronograma</button>
-                    </div>
-                    <div class="admin-action-row">
-                        <button class="btn-admin-control" id="addSkillGroupBtn"><i class="ph ph-plus"></i> Novo Grupo Habilidade</button>
-                    </div>
-                    
-                    <div class="divider-drawer"></div>
-                    <button class="btn-drawer-action btn-danger-drawer" id="exitAdminModeBtn"><i class="ph ph-sign-out"></i> Sair do Modo Editor</button>
-                </div>
-            </div>
-            
-            <div class="drawer-footer">
-                <span class="drawer-footer-text">Versão 3.0.0 Premium (Lenis + GSAP)</span>
-            </div>
+    <footer class="site-footer" id="contato">
+        <div>
+            <p class="section-kicker">Contato</p>
+            <h2>Vamos conversar sobre projetos e oportunidades.</h2>
         </div>
-    </div>
+        <address>
+            <a href="mailto:souza_bruno_souza07@outlook.com">souza_bruno_souza07@outlook.com</a>
+            <a href="https://www.linkedin.com/in/bruno-henrique-souza0">linkedin.com/in/bruno-henrique-souza0</a>
+            <span>Jacareí, SP</span>
+        </address>
+        <p class="copyright">© <span id="year">2026</span> bhsti.online</p>
+    </footer>
 
-    <!-- MODAL OVERLAY SYSTEM -->
-    <div class="modal-overlay" id="modalOverlay"></div>
-
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- ================= SCRIPTS ================= -->
-    <!-- Supabase JS -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
-    <!-- GSAP Libraries (Core + ScrollTrigger) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    
-    <!-- Lenis Smooth Scroll -->
-    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
-
-    <!-- App Logic -->
     <script src="app.js"></script>
-
 </body>
 </html>
