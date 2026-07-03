@@ -6,6 +6,15 @@
         year.textContent = new Date().getFullYear();
     }
 
+    var header = document.querySelector('.site-header');
+    function updateHeaderState() {
+        if (!header) return;
+        header.classList.toggle('is-scrolled', window.scrollY > 96);
+    }
+
+    updateHeaderState();
+    window.addEventListener('scroll', updateHeaderState, { passive: true });
+
     var revealItems = document.querySelectorAll('.intro-section, .section-band, .project-card, .timeline li, .skill-group');
     revealItems.forEach(function (item) {
         item.classList.add('reveal');
