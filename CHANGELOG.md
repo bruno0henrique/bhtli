@@ -1,5 +1,14 @@
 # Histórico de alterações
 
+## 1.3.1 - 30/09/2026
+
+- Mais espaçamento entre seções, projetos, formação e contatos.
+- Traços de fundo discretos, sem animação e sem interferir na leitura.
+- Projeto apresentado como Sites para Vendas, com descrição de vitrines digitais e atendimento comercial.
+- Conclusão prevista de Análise e Desenvolvimento de Sistemas corrigida para jun. 2027.
+- Experiência de desenvolvimento web em projetos privados durante 2026, conforme informação do usuário.
+- JavaScript e React destacados como tecnologias mais utilizadas atualmente.
+
 ## 1.3.0 - 30/09/2026
 
 - Direção visual baseada nas referências enviadas: títulos grandes, texto direto e cores sólidas em pontos específicos.

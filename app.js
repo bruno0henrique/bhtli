@@ -16,6 +16,16 @@
     window.addEventListener('scroll', updateHeaderState, { passive: true });
 
     var modalData = {
+    "private-projects": {
+        "kicker": "Experiência em desenvolvimento",
+        "title": "Desenvolvimento web em projetos privados",
+        "text": "Atuação durante 2026 em projetos privados de aplicações web, com foco no desenvolvimento e na integração de recursos.",
+        "list": [
+            "Interfaces web com JavaScript e React.",
+            "Integração entre aplicações, serviços e bancos de dados SQL.",
+            "Uso de ferramentas de automação nos projetos."
+        ]
+    },
     "nexus": {
         "kicker": "Projeto",
         "title": "Nexus Engine",
@@ -29,8 +39,8 @@
     },
     "belleland": {
         "kicker": "Projeto",
-        "title": "Catálogo de Moda",
-        "text": "Catálogo digital de roupas com experiência voltada ao celular e administração de produtos e vitrines.",
+        "title": "Sites para Vendas",
+        "text": "Vitrines digitais para apresentar produtos e apoiar o atendimento comercial, com catálogo responsivo e painel de gestão.",
         "list": [
             "Gestão de categorias, promoções, imagens e produtos publicados.",
             "Autenticação, banco de dados e armazenamento com Supabase.",
@@ -116,7 +126,7 @@
     "ads": {
         "kicker": "Formação em andamento",
         "title": "Análise e Desenvolvimento de Sistemas",
-        "text": "Graduação pela Universidade Anhembi Morumbi - SJC, iniciada em julho de 2023, com conclusão prevista para dezembro de 2026.",
+        "text": "Graduação pela Universidade Anhembi Morumbi - SJC, iniciada em julho de 2023, com conclusão prevista para junho de 2027.",
         "list": [
             "Programação e lógica de desenvolvimento.",
             "Banco de dados e fundamentos de sistemas.",
@@ -157,11 +167,11 @@
     "skill-programming": {
         "kicker": "Competência",
         "title": "Programação",
-        "text": "Python e lógica de programação são meus pontos mais fortes. Estou ampliando minha base em desenvolvimento web.",
+        "text": "JavaScript e React são as tecnologias que mais utilizo atualmente nos projetos de desenvolvimento web.",
         "list": [
-            "Foco em Python e resolução de problemas por meio de lógica.",
-            "Conhecimentos básicos de HTML, CSS, JavaScript e TypeScript.",
-            "Contato com React e Next.js nos projetos, sem atribuir domínio avançado desses frameworks."
+            "JavaScript e React para desenvolver interfaces web.",
+            "Python e lógica de programação como conhecimentos complementares.",
+            "HTML, CSS, TypeScript e Next.js utilizados nos projetos."
         ]
     },
     "skill-data": {

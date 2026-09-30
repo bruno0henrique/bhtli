@@ -13,8 +13,9 @@ Para visualizar localmente, sirva a raiz com um servidor HTTP estático. A publi
 - Objetivo: Desenvolvedor Full Stack Júnior.
 - Pontos fortes informados: Python e lógica de programação.
 - Prática informada: SQL, integração de aplicativos e ferramentas de automação.
+- Atualização informada pelo usuário: JavaScript e React são as tecnologias mais utilizadas atualmente. Atuação durante 2026 em projetos privados de desenvolvimento web, apresentada na experiência profissional sem inventar empresa, vínculo ou métricas.
 - Desenvolvimento web apresentado em nível básico. Frameworks são tecnologias utilizadas nos projetos, sem alegar domínio avançado.
-- Formação e cargos alinhados ao currículo enviado: ADS de jul. 2023 a dez. 2026 (conclusão prevista); Operador de Produção na MARS desde jun. 2023.
+- Formação e cargos: ADS desde jul. 2023, com conclusão prevista para jun. 2027 (correção informada pelo usuário); Operador de Produção na MARS desde jun. 2023.
 - Destaques: Nexus Engine, Belleland Closet, Aldenn Flow, Synapse IA, Nexo Produção, Synapse Sheets, sites Aldenn, Pokédex e portfólio.
 - Terradata e PDV Mercadinho retirados dos destaques por ausência de implementação local disponível para confirmar seu estado. Os projetos originais foram preservados.
 - Não declarar contratação, implantação oficial na MARS, métricas de impacto, integrações planejadas como concluídas ou senioridade sem confirmação.
@@ -30,5 +31,7 @@ Versão 1.2.0: visual claro com base neutra e verde discreto; imagem existente e
 Versão 1.3.0 substitui a direção anterior pelas referências enviadas pelo usuário: branco e preto como base, nome grande em vermelho e bloco de competências amarelo. Títulos curtos em caixa alta, sem frases conceituais, painéis ornamentais ou excesso de cores. Imagem de fundo quase imperceptível; efeitos discretos e rolagem suave preservados.
 
 Ajustes adicionais aprovados: identificação bhsti.online no cabeçalho; retirada da Pokédex; nomes públicos Catálogo de Moda e Gestão de Equipes em lugar de Belleland e Nexo Produção; contatos organizados com emojis pequenos no rodapé.
+
+Versão 1.3.1: maior espaçamento, traços discretos de fundo e nome público Sites para Vendas em substituição a Catálogo de Moda. Conclusão de ADS prevista para jun. 2027, conforme correção do usuário.
 
 Verificar sintaxe do JavaScript, navegação e detalhes dos cards em desktop e celular. Versão registrada em `VERSION`; histórico em `CHANGELOG.md`.
