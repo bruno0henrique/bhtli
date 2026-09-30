@@ -16,137 +16,195 @@
     window.addEventListener('scroll', updateHeaderState, { passive: true });
 
     var modalData = {
-        pdv: {
-            kicker: 'Projeto',
-            title: 'PDV Mercadinho',
-            text: 'Sistema de frente de caixa pensado para pequenos mercados. A ideia é deixar a rotina de venda mais direta, com organização de produtos e apoio ao controle operacional.',
-            list: [
-                'Fluxo de venda simples para o operador.',
-                'Organização de produtos e informações principais.',
-                'Base para evoluir controle, gestão e relatórios.'
-            ]
-        },
-        terradata: {
-            kicker: 'Projeto',
-            title: 'Terradata',
-            text: 'Projeto voltado para organizar dados territoriais e facilitar a leitura de informações em um formato mais prático.',
-            list: [
-                'Estrutura para consulta e organização de dados.',
-                'Foco em clareza, filtros e leitura rápida.',
-                'Área reservada para evolução do estudo.'
-            ]
-        },
-        nexus: {
-            kicker: 'Projeto',
-            title: 'Nexus Engine',
-            text: 'Estudo de uma base para conectar regras, fluxos e partes de uma aplicação de forma mais organizada.',
-            list: [
-                'Organização de lógica e responsabilidades.',
-                'Pensado para reaproveitar partes do sistema.',
-                'Projeto em desenvolvimento para estudar arquitetura.'
-            ]
-        },
-        portfolio: {
-            kicker: 'Projeto',
-            title: 'Portfólio bhsti.online',
-            text: 'Site pessoal criado para reunir projetos, estudos, competências e trajetória em um só lugar.',
-            list: [
-                'Estrutura em HTML, CSS e JavaScript.',
-                'Visual escuro com destaque em laranja.',
-                'Conteúdo organizado para mostrar evolução profissional.'
-            ]
-        },
-        ifsp: {
-            kicker: 'Formação',
-            title: 'Administração integrada ao Ensino Médio',
-            text: 'Formação técnica pelo IFSP, com base em rotina administrativa, organização e visão de processos.',
-            list: [
-                'Noções de administração e atividades administrativas.',
-                'Organização, comunicação e rotina de trabalho.',
-                'Base importante para lidar com processos e equipe.'
-            ]
-        },
-        ads: {
-            kicker: 'Formação',
-            title: 'Análise e Desenvolvimento de Sistemas',
-            text: 'Graduação pela Universidade Anhembi Morumbi - SJC, com foco em desenvolvimento de sistemas e fundamentos de tecnologia.',
-            list: [
-                'Programação e lógica de desenvolvimento.',
-                'Banco de dados, web e fundamentos de sistemas.',
-                'Contato com metodologia ágil e resolução de problemas.'
-            ]
-        },
-        'tech-studies': {
-            kicker: 'Estudos',
-            title: 'Projetos e estudos em tecnologia',
-            text: 'Estudos práticos para evoluir na área de tecnologia, ligando teoria, projetos próprios e rotina de aprendizado.',
-            list: [
-                'Java, Python e C/C++.',
-                'HTML, CSS e JavaScript.',
-                'Aplicações web, organização de projetos e boas práticas.'
-            ]
-        },
-        vetcia: {
-            kicker: 'Trabalho',
-            title: 'Operador de Produção - Vet&CIA',
-            text: 'Experiência em operação produtiva, com apoio à liderança e acompanhamento de rotina com responsabilidade de equipe.',
-            list: [
-                'Atuação direta na operação.',
-                'Apoio à liderança como backup.',
-                'Organização de rotina e acompanhamento de equipe.'
-            ]
-        },
-        mars: {
-            kicker: 'Trabalho',
-            title: 'Auxiliar de Produção - MARS Brasil',
-            text: 'Atuação na área produtiva com contato com melhoria contínua, SAP GUI, 5S e Kaizen.',
-            list: [
-                'Uso de SAP GUI na rotina de trabalho.',
-                'Treinamentos em 5S, Kaizen e melhoria contínua.',
-                'Vivência com trabalho em equipe e relações humanas.'
-            ]
-        },
-        'skill-programming': {
-            kicker: 'Competência',
-            title: 'Programação',
-            text: 'Conhecimentos em linguagens e base de desenvolvimento para criar e entender sistemas.',
-            list: [
-                'Java, Python e C/C++.',
-                'HTML, CSS e JavaScript.',
-                'Lógica, estrutura de código e prática com projetos.'
-            ]
-        },
-        'skill-process': {
-            kicker: 'Competência',
-            title: 'Processos',
-            text: 'Vivência com ferramentas e práticas usadas em ambiente produtivo e administrativo.',
-            list: [
-                'SAP GUI e pacote Office.',
-                '5S, Kaizen e melhoria contínua.',
-                'Análise de problemas e organização de rotina.'
-            ]
-        },
-        'skill-profile': {
-            kicker: 'Competência',
-            title: 'Perfil profissional',
-            text: 'Pontos que levo para o dia a dia de trabalho e para projetos em equipe.',
-            list: [
-                'Boa comunicação e trabalho em equipe.',
-                'Aprendizado rápido e atenção a detalhes.',
-                'Responsabilidade, organização e vontade de evoluir.'
-            ]
-        },
-        'skill-english': {
-            kicker: 'Competência',
-            title: 'Inglês',
-            text: 'Conhecimento em desenvolvimento, principalmente para leitura e contato com materiais técnicos.',
-            list: [
-                'Leitura de conteúdos e documentações.',
-                'Escrita em evolução.',
-                'Comunicação básica em desenvolvimento.'
-            ]
-        }
-    };
+    "nexus": {
+        "kicker": "Projeto",
+        "title": "Nexus Engine",
+        "text": "Sistema web de gestão empresarial para reunir dados e rotinas operacionais em uma mesma aplicação.",
+        "list": [
+            "Módulos de vendas e PDV, estoque, financeiro, clientes e auditoria.",
+            "Controle de acesso, histórico de operações e importação de planilhas.",
+            "Next.js, React, TypeScript, PostgreSQL/Neon e Drizzle ORM.",
+            "Assistência por IA e integrações dependem da configuração e do escopo de cada módulo."
+        ]
+    },
+    "belleland": {
+        "kicker": "Projeto",
+        "title": "Belleland Closet",
+        "text": "Catálogo digital de roupas com experiência voltada ao celular e administração de produtos e vitrines.",
+        "list": [
+            "Gestão de categorias, promoções, imagens e produtos publicados.",
+            "Autenticação, banco de dados e armazenamento com Supabase.",
+            "Integração para captura de publicações e sugestões de cadastro por IA, com revisão humana.",
+            "Next.js, React, TypeScript e Python na captura de publicações; contato via WhatsApp, sem pagamento no site."
+        ]
+    },
+    "flow": {
+        "kicker": "Projeto",
+        "title": "Aldenn Flow",
+        "text": "Plataforma para acompanhar projetos e organizar o trabalho em sprints, tarefas e demandas.",
+        "list": [
+            "Perfis de acesso, histórico de alterações e acompanhamento de progresso.",
+            "Organização de demandas, sprints e roadmap por projeto.",
+            "Next.js, React, TypeScript e PostgreSQL/Supabase.",
+            "Interpretação estruturada opcional por IA; integrações externas dependem de configuração."
+        ]
+    },
+    "synapse": {
+        "kicker": "Em desenvolvimento",
+        "title": "Synapse IA",
+        "text": "Aplicação para organizar ideias em mapas visuais e expandir raciocínios com sugestões contextuais de IA.",
+        "list": [
+            "Criação e movimentação de ideias, conexões e navegação com zoom.",
+            "Projetos separados, estatísticas e persistência dos mapas.",
+            "React, TypeScript, Vite, Neon/PostgreSQL, Clerk e Gemini.",
+            "A variante Synapse for Mars explora uma apresentação corporativa; integrações corporativas planejadas não representam implantação oficial na empresa."
+        ]
+    },
+    "nexo": {
+        "kicker": "Projeto",
+        "title": "Nexo Produção",
+        "text": "Aplicação para organizar equipes de produção e acompanhar alterações nas alocações.",
+        "list": [
+            "Registro de faltas, substituições e histórico de alocação.",
+            "Next.js, React, TypeScript, Drizzle e Neon/PostgreSQL.",
+            "Modo de demonstração no navegador quando o banco não está configurado."
+        ]
+    },
+    "sheets": {
+        "kicker": "Projeto",
+        "title": "Synapse Sheets",
+        "text": "Aplicação de aprendizado de planilhas com prática orientada e acompanhamento de progresso.",
+        "list": [
+            "Exercícios, dicas e validação de respostas em uma área de planilha.",
+            "Autenticação e registro de progresso por usuário.",
+            "React, TypeScript, Vite, Neon/PostgreSQL e Drizzle.",
+            "Ambiente próprio de exercícios; não é uma integração com o Microsoft Excel."
+        ]
+    },
+    "aldenn-sites": {
+        "kicker": "Sites e demonstrações",
+        "title": "Aldenn e vitrines digitais",
+        "text": "Projetos de apresentação de serviços, qualificação de contatos e catálogos para diferentes segmentos.",
+        "list": [
+            "Aldenn: site institucional, Direcionador e módulo de propostas comerciais.",
+            "Aldenn Imóveis: demonstração de catálogo, filtros, galerias e busca assistida por IA.",
+            "Taeko Noivas, Maison Amora e FF Moda Festa: apresentações e vitrines demonstrativas.",
+            "Interfaces responsivas com React, Next.js e TypeScript; integrações e persistência conforme o projeto.",
+            "Modelos demonstrativos não representam contratação ou implantação comercial confirmada."
+        ]
+    },
+    "pokedex": {
+        "kicker": "Estudo",
+        "title": "Pokédex",
+        "text": "Projeto de estudo que apresenta dados de Pokémon consumindo a PokéAPI.",
+        "list": [
+            "HTML, CSS e JavaScript.",
+            "Requisições com fetch e tratamento assíncrono com promises.",
+            "Apresentação de nomes, tipos e imagens a partir da API."
+        ]
+    },
+    "portfolio": {
+        "kicker": "Projeto",
+        "title": "Portfólio bhsti.online",
+        "text": "Site pessoal que reúne projetos, formação e experiência, com foco em desenvolvimento Full Stack Júnior.",
+        "list": [
+            "HTML, CSS e JavaScript, com layout responsivo.",
+            "Detalhes dos projetos em janelas acessíveis pelo mouse e teclado.",
+            "Conteúdo alinhado ao currículo e às competências confirmadas."
+        ]
+    },
+    "ifsp": {
+        "kicker": "Formação",
+        "title": "Técnico em Administração integrado ao Ensino Médio",
+        "text": "Formação técnica pelo IFSP, concluída entre janeiro de 2016 e dezembro de 2018.",
+        "list": [
+            "Base em administração, organização e rotina de trabalho.",
+            "Comunicação e visão de processos.",
+            "Curso complementar de Office Avançado pelo IFSP."
+        ]
+    },
+    "ads": {
+        "kicker": "Formação em andamento",
+        "title": "Análise e Desenvolvimento de Sistemas",
+        "text": "Graduação pela Universidade Anhembi Morumbi - SJC, iniciada em julho de 2023, com conclusão prevista para dezembro de 2026.",
+        "list": [
+            "Programação e lógica de desenvolvimento.",
+            "Banco de dados e fundamentos de sistemas.",
+            "Aplicação dos estudos em projetos de sistemas web."
+        ]
+    },
+    "tech-studies": {
+        "kicker": "Estudos",
+        "title": "Projetos e estudos em tecnologia",
+        "text": "Aprendizado por meio de projetos de aplicações, integração de serviços e organização de dados.",
+        "list": [
+            "Foco em Python, lógica de programação e SQL.",
+            "Conhecimentos básicos de HTML, CSS, JavaScript e TypeScript.",
+            "React, Next.js, Neon e Supabase utilizados nos projetos.",
+            "Curso complementar de Java e QA pela Ultima School."
+        ]
+    },
+    "vetcia": {
+        "kicker": "Experiência profissional",
+        "title": "Operador de Produção - Vet&CIA",
+        "text": "Atuação entre abril de 2020 e junho de 2023 em operação produtiva e organização das atividades da equipe.",
+        "list": [
+            "Atuação direta na operação.",
+            "Apoio à liderança como backup.",
+            "Responsabilidades de coordenação e acompanhamento da equipe."
+        ]
+    },
+    "mars": {
+        "kicker": "Experiência profissional",
+        "title": "Operador de Produção - MARS Brasil",
+        "text": "Atuação desde junho de 2023 em ambiente produtivo, com apoio à liderança e colaboração com a equipe.",
+        "list": [
+            "Criação e atualização de planilhas para acompanhamento de dados operacionais.",
+            "Participação em rotinas de melhoria contínua, 5S e Kaizen.",
+            "Organização de processos e análise de problemas na rotina de produção."
+        ]
+    },
+    "skill-programming": {
+        "kicker": "Competência",
+        "title": "Programação",
+        "text": "Python e lógica de programação são meus pontos mais fortes. Estou ampliando minha base em desenvolvimento web.",
+        "list": [
+            "Foco em Python e resolução de problemas por meio de lógica.",
+            "Conhecimentos básicos de HTML, CSS, JavaScript e TypeScript.",
+            "Contato com React e Next.js nos projetos, sem atribuir domínio avançado desses frameworks."
+        ]
+    },
+    "skill-data": {
+        "kicker": "Competência",
+        "title": "Dados e SQL",
+        "text": "Vivência com bancos de dados SQL e integração de aplicações com persistência de dados.",
+        "list": [
+            "SQL e organização dos dados utilizados pelas aplicações.",
+            "PostgreSQL, Neon e Supabase utilizados nos projetos.",
+            "Conexão entre as interfaces, os serviços e o banco de dados."
+        ]
+    },
+    "skill-profile": {
+        "kicker": "Competência",
+        "title": "Perfil profissional",
+        "text": "Minha experiência em produção contribui para a forma como organizo o trabalho e analiso problemas.",
+        "list": [
+            "Comunicação, colaboração em equipe e apoio à liderança.",
+            "Atenção aos detalhes, organização e aprendizado de ferramentas.",
+            "Melhoria contínua, 5S e Kaizen na experiência profissional."
+        ]
+    },
+    "skill-integration": {
+        "kicker": "Competência",
+        "title": "Integrações e automação",
+        "text": "Integrações de aplicativos, bancos de dados SQL e ferramentas de automação fazem parte da minha prática.",
+        "list": [
+            "Conexão entre aplicativos e serviços.",
+            "Integração com bancos de dados e organização de fluxos.",
+            "Contato com APIs externas e recursos de IA nos projetos."
+        ]
+    }
+};
 
     var modal = document.getElementById('detailModal');
     var modalKicker = document.getElementById('modalKicker');
