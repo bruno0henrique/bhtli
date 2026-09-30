@@ -23,4 +23,8 @@ Nome completo e canais de contato existentes foram preservados. O pedido de reti
 
 ## Validação e versões
 
+### Direção visual aprovada em 30/09/2026
+
+Versão 1.2.0: visual claro com base neutra e verde discreto; imagem existente em escala de cinza com baixa opacidade; conteúdo organizado em blocos, efeitos simples e rolagem suave nativa. Movimento reduzido desativa as animações e a rolagem suave. Navegação e detalhes devem continuar utilizáveis em celular e por teclado.
+
 Verificar sintaxe do JavaScript, navegação e detalhes dos cards em desktop e celular. Versão registrada em `VERSION`; histórico em `CHANGELOG.md`.

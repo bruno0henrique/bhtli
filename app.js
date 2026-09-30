@@ -212,23 +212,31 @@
     var modalText = document.getElementById('modalText');
     var modalList = document.getElementById('modalList');
     var modalClose = document.querySelector('.modal-close');
+    var modalTrigger = null;
 
     function closeModal() {
-        if (!modal) return;
+        if (!modal || !modal.classList.contains('is-open')) return;
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        modal.inert = true;
+        if (modalTrigger) modalTrigger.focus({ preventScroll: true });
     }
 
     function openModal(id) {
         var item = modalData[id];
         if (!item || !modal) return;
+        modalTrigger = document.activeElement;
+        modal.inert = false;
         modalKicker.textContent = item.kicker;
         modalTitle.textContent = item.title;
         modalText.textContent = item.text;
-        modalList.innerHTML = item.list.map(function (line) {
-            return '<li>' + line + '</li>';
-        }).join('');
+        modalList.replaceChildren();
+        item.list.forEach(function (line) {
+            var entry = document.createElement('li');
+            entry.textContent = line;
+            modalList.appendChild(entry);
+        });
         modal.classList.add('is-open');
         modal.setAttribute('aria-hidden', 'false');
         document.body.style.overflow = 'hidden';
@@ -259,9 +267,29 @@
 
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') closeModal();
+        if (event.key === 'Tab' && modal && modal.classList.contains('is-open')) {
+            event.preventDefault();
+            if (modalClose) modalClose.focus();
+        }
     });
 
-    var revealItems = document.querySelectorAll('.intro-section, .section-band, .project-card, .timeline-card, .skill-group');
+    var navLinks = document.querySelectorAll('.site-nav a');
+    if ('IntersectionObserver' in window) {
+        var sectionObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                navLinks.forEach(function (link) {
+                    if (link.hash === '#' + entry.target.id) link.setAttribute('aria-current', 'location');
+                    else link.removeAttribute('aria-current');
+                });
+            });
+        }, { rootMargin: '-15% 0px -60% 0px', threshold: 0 });
+        document.querySelectorAll('#projetos, #trajetoria, #competencias, #contato').forEach(function (section) {
+            sectionObserver.observe(section);
+        });
+    }
+
+    var revealItems = document.querySelectorAll('.project-card, .timeline-card, .skill-group');
     revealItems.forEach(function (item) {
         item.classList.add('reveal');
     });

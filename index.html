@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bruno Henrique | Desenvolvedor Full Stack Júnior</title>
     <meta name="description" content="Portfólio de Bruno Henrique Souza. Foco em Python, lógica de programação, SQL, integração de aplicações e automação. Projetos de sistemas web e gestão.">
-    <meta name="theme-color" content="#080808">
+    <meta name="theme-color" content="#F5F5F0">
 
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
@@ -18,7 +18,7 @@
 </head>
 <body>
     <header class="site-header">
-        <a class="brand" href="#top" aria-label="Início">bhsti.online<span>.</span></a>
+        <a class="brand" href="#top" aria-label="Início">bh<span>.</span>sti</a>
         <nav class="site-nav" aria-label="Navegação principal">
             <a href="#projetos">Projetos</a>
             <a href="#trajetoria">Trajetória</a>
@@ -29,21 +29,31 @@
 
     <main id="top">
         <section class="hero" aria-labelledby="hero-title">
-            <img class="hero-image" src="assets/hero-workspace.png" alt="Mesa escura com notebook, anotações e elementos de projeto em laranja">
-            <div class="hero-overlay"></div>
+            <img class="hero-image" src="assets/hero-workspace.png" alt="" aria-hidden="true">
+            <div class="hero-overlay" aria-hidden="true"></div>
             <div class="hero-content">
                 <p class="eyebrow">Desenvolvedor Full Stack Júnior</p>
-                <h1 id="hero-title">Bruno Henrique Lopes de Souza</h1>
+                <h1 id="hero-title">Bruno Henrique<span class="hero-surname"> Lopes de Souza</span></h1>
                 <p class="hero-copy">
                     Estudante de Análise e Desenvolvimento de Sistemas, com foco em Python, lógica de programação,
                     bancos de dados SQL, integração de aplicações e automação.
                 </p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#projetos">Explorar projetos <span aria-hidden="true">↗</span></a>
+                    <a class="button button-secondary" href="#contato">Entrar em contato</a>
+                </div>
                 <div class="hero-meta" aria-label="Resumo profissional">
                     <span>Jacareí, SP</span>
                     <span>ADS</span>
                     <span>Python, SQL e automação</span>
                 </div>
             </div>
+            <aside class="hero-focus" aria-label="Principais áreas de conhecimento">
+                <p class="focus-heading">Minha base</p>
+                <div class="focus-item"><span class="focus-number">01</span><div><h2>Python e lógica</h2><p>Análise e resolução de problemas</p></div></div>
+                <div class="focus-item"><span class="focus-number">02</span><div><h2>SQL e dados</h2><p>Organização e integração de informações</p></div></div>
+                <div class="focus-item"><span class="focus-number">03</span><div><h2>Integrações</h2><p>Aplicativos, serviços e automação</p></div></div>
+            </aside>
         </section>
 
         <section class="intro-section">
@@ -279,7 +289,7 @@
         <p class="copyright">© <span id="year">2026</span> bhsti.online</p>
     </footer>
 
-    <div class="modal-overlay" id="detailModal" aria-hidden="true">
+    <div class="modal-overlay" id="detailModal" aria-hidden="true" inert>
         <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <button class="modal-close" type="button" aria-label="Fechar">×</button>
             <p class="modal-kicker" id="modalKicker"></p>
