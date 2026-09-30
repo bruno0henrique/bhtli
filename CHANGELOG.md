@@ -1,5 +1,15 @@
 # Histórico de alterações
 
+## 1.3.0 - 30/09/2026
+
+- Direção visual baseada nas referências enviadas: títulos grandes, texto direto e cores sólidas em pontos específicos.
+- Nome em vermelho, competências em amarelo e restante do conteúdo em preto e branco.
+- Remoção de painéis ornamentais, ícones, gradientes e cartões arredondados.
+- Textos de apresentação e títulos de seção simplificados; rolagem suave e acessibilidade preservadas.
+- Cabeçalho identificado como bhsti.online e favicon atualizado.
+- Pokédex retirada; Catálogo de Moda e Gestão de Equipes apresentados sem nomes de marca.
+- Rodapé organizado por canal, com labels, links e emojis pequenos.
+
 ## 1.2.0 - 30/09/2026
 
 - Nova identidade visual clara, com tons neutros, detalhes verdes e imagem de fundo discreta.

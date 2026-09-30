@@ -27,4 +27,8 @@ Nome completo e canais de contato existentes foram preservados. O pedido de reti
 
 Versão 1.2.0: visual claro com base neutra e verde discreto; imagem existente em escala de cinza com baixa opacidade; conteúdo organizado em blocos, efeitos simples e rolagem suave nativa. Movimento reduzido desativa as animações e a rolagem suave. Navegação e detalhes devem continuar utilizáveis em celular e por teclado.
 
+Versão 1.3.0 substitui a direção anterior pelas referências enviadas pelo usuário: branco e preto como base, nome grande em vermelho e bloco de competências amarelo. Títulos curtos em caixa alta, sem frases conceituais, painéis ornamentais ou excesso de cores. Imagem de fundo quase imperceptível; efeitos discretos e rolagem suave preservados.
+
+Ajustes adicionais aprovados: identificação bhsti.online no cabeçalho; retirada da Pokédex; nomes públicos Catálogo de Moda e Gestão de Equipes em lugar de Belleland e Nexo Produção; contatos organizados com emojis pequenos no rodapé.
+
 Verificar sintaxe do JavaScript, navegação e detalhes dos cards em desktop e celular. Versão registrada em `VERSION`; histórico em `CHANGELOG.md`.

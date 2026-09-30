@@ -29,7 +29,7 @@
     },
     "belleland": {
         "kicker": "Projeto",
-        "title": "Belleland Closet",
+        "title": "Catálogo de Moda",
         "text": "Catálogo digital de roupas com experiência voltada ao celular e administração de produtos e vitrines.",
         "list": [
             "Gestão de categorias, promoções, imagens e produtos publicados.",
@@ -62,7 +62,7 @@
     },
     "nexo": {
         "kicker": "Projeto",
-        "title": "Nexo Produção",
+        "title": "Gestão de Equipes",
         "text": "Aplicação para organizar equipes de produção e acompanhar alterações nas alocações.",
         "list": [
             "Registro de faltas, substituições e histórico de alocação.",
@@ -91,16 +91,6 @@
             "Taeko Noivas, Maison Amora e FF Moda Festa: apresentações e vitrines demonstrativas.",
             "Interfaces responsivas com React, Next.js e TypeScript; integrações e persistência conforme o projeto.",
             "Modelos demonstrativos não representam contratação ou implantação comercial confirmada."
-        ]
-    },
-    "pokedex": {
-        "kicker": "Estudo",
-        "title": "Pokédex",
-        "text": "Projeto de estudo que apresenta dados de Pokémon consumindo a PokéAPI.",
-        "list": [
-            "HTML, CSS e JavaScript.",
-            "Requisições com fetch e tratamento assíncrono com promises.",
-            "Apresentação de nomes, tipos e imagens a partir da API."
         ]
     },
     "portfolio": {
@@ -274,6 +264,13 @@
     });
 
     var navLinks = document.querySelectorAll('.site-nav a');
+    window.addEventListener('scroll', function () {
+        if (window.innerHeight + window.scrollY < document.documentElement.scrollHeight - 4) return;
+        navLinks.forEach(function (link) {
+            if (link.hash === '#contato') link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+        });
+    }, { passive: true });
     if ('IntersectionObserver' in window) {
         var sectionObserver = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
