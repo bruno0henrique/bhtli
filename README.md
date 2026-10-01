@@ -35,3 +35,9 @@ Ajustes adicionais aprovados: identificação bhsti.online no cabeçalho; retira
 Versão 1.3.1: maior espaçamento, traços discretos de fundo e nome público Sites para Vendas em substituição a Catálogo de Moda. Conclusão de ADS prevista para jun. 2027, conforme correção do usuário.
 
 Verificar sintaxe do JavaScript, navegação e detalhes dos cards em desktop e celular. Versão registrada em `VERSION`; histórico em `CHANGELOG.md`.
+
+### Currículo
+
+O PDF enviado pelo usuário está em `assets/documentos/curriculo-bruno-henrique.pdf`. A seção Contato permite abrir em outra aba ou baixar. O arquivo é uma cópia íntegra do documento fornecido, sem reescrita ou reexportação.
+
+O número de contato abre o WhatsApp por `wa.me`, em vez de iniciar uma ligação telefônica.

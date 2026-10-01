@@ -1,5 +1,11 @@
 # Histórico de alterações
 
+## 1.3.2 - 30/09/2026
+
+- Currículo atualizado enviado pelo usuário disponível na seção Contato, com ações para abrir e baixar o PDF.
+- Arquivo original preservado sem alterações de conteúdo.
+- Contato por WhatsApp no lugar do link de chamada telefônica, mantendo o número cadastrado.
+
 ## 1.3.1 - 30/09/2026
 
 - Mais espaçamento entre seções, projetos, formação e contatos.
